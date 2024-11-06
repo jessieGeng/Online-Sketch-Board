@@ -1,0 +1,93 @@
+{
+    "regions": [
+        {
+            "name": "balloon",
+            "x": 0, "y": 0, "w":50, "h":50, 
+            "imageLoc": "./images/balloon.png"
+        }, 
+        {
+            "name": "charger",
+            "x": 15, "y": 50, "w":20, "h":40, 
+            "imageLoc": ""
+        },
+        {
+            "name": "line",
+            "x":0, "y": 0, "w":100, "h":100, 
+            "imageLoc": "./images/empty.png"
+        },
+        {
+            "name": "hand",
+            "x": 15, "y": 190, "w":20, "h":20, 
+            "imageLoc": ""
+        }, 
+        {
+            "name": "reset",
+            "x": -70, "y": 100, "w":50, "h":50, 
+            "imageLoc": "./images/reset.png"
+        }
+
+    ], 
+    "states":[
+        {
+            "name" : "rest",
+            "transitions" : [
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "hand"},
+                    "target" : "handle",
+                    "actions" : [{"act": "print_event", "param": "Press handle: "}]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "balloon"},
+                    "target" : "rest",
+                    "actions" : [
+                        {"act": "print_event", "param": "Click balloon: "}, 
+                        {"act": "set_image", "region":"balloon", "param": "./images/boom.png"}
+                ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "reset"},
+                    "target" : "rest",
+                    "actions" : [
+                        {"act": "print_event", "param": "Reset."},
+                        {"act": "hand_rest", "region": "hand"}, 
+                        {"act": "line_rest", "region": "line"},
+                        {"act": "balloon_rest", "region": "balloon"},
+                        {"act": "set_image", "region":"balloon", "param": "./images/balloon.png"}
+                    ]
+                }
+            ]
+        },
+        {
+            "name" : "handle",
+            "transitions" : [
+                {
+                    "onEvent" : {"evtType" : "move_inside", "region" : "line"},
+                    "target" : "handle",
+                    "actions" : [
+                        {"act": "print_event", "param": "Inflating: "}, 
+                        {"act": "balloon_bigger", "region": "balloon", "param": "./images/boom.png"}, 
+                        {"act": "hand_move", "region": "hand"}, 
+                        {"act": "line_shorter", "region": "line"}]
+                }, 
+                {
+                    "onEvent" : {"evtType" : "release", "region" : "*"},
+                    "target" : "rest",
+                    "actions" : [
+                        {"act": "print_event", "param": "Release: "},
+                        {"act": "hand_rest", "region": "hand"}, 
+                        {"act": "line_rest", "region": "line"}]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "reset"},
+                    "target" : "rest",
+                    "actions" : [
+                        {"act": "print_event", "param": "Reset: "},
+                        {"act": "hand_rest", "region": "hand"}, 
+                        {"act": "line_rest", "region": "line"},
+                        {"act": "balloon_rest", "region": "balloon"},
+                        {"act": "set_image", "region":"balloon", "param": "./images/balloon.png"}]
+                }
+            ]
+        }
+    ]
+}
