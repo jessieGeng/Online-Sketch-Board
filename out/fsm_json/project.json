@@ -1,0 +1,42 @@
+{
+    "regions": [
+        {
+            "name": "tools",
+            "x": 0, "y": 0, "w":240, "h":40, 
+            "imageLoc": "./images/tools.png"
+        },
+        {
+            "name": "line",
+            "x": 20, "y": 10, "w":20, "h":20, 
+            "imageLoc": "./images/Line.png"
+        }, 
+        {
+            "name": "rect",
+            "x": 80, "y": 10, "w":20, "h":20, 
+            "imageLoc": "./images/rect.png"
+        },
+        {
+            "name": "circle",
+            "x":140, "y": 10, "w":20, "h":20, 
+            "imageLoc": "./images/circle.png"
+        },
+        {
+            "name": "erase",
+            "x": 200, "y": 10, "w":23, "h":23, 
+            "imageLoc": "./images/erase.png"
+        }
+
+    ], 
+    "states":[
+        {
+            "name" : "rest",
+            "transitions" : [
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "hand"},
+                    "target" : "handle",
+                    "actions" : [{"act": "print_event", "param": "Press handle: "}]
+                }
+            ]
+        }
+    ]
+}
