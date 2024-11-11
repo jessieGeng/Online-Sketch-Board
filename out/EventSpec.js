@@ -1,7 +1,7 @@
 import { Err } from "./Err.js";
 import { Check } from "./Check.js";
 const evtTypeStrings = ['press', 'release', 'release_none', 'enter', 'exit',
-    'move_inside', 'any', 'nevermatch'];
+    'move_inside', 'click', 'any', 'nevermatch'];
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 export class EventSpec {
     constructor(evtTyp, regionName) {

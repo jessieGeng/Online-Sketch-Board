@@ -153,6 +153,7 @@ export class FSMInteractor {
             ctx.save(); 
             // translate to the coordinate of current region
             ctx.translate(region.x, region.y);
+            region.canvas = ctx;
             region.draw(ctx, showDebugging);
             
             // translate back
@@ -228,7 +229,7 @@ export class FSMInteractor {
     // last drawn region should be dispatched first (i.e., events are delivered in 
     // reverse region drawing order). Note that all generated higher-level events
     // are dispatched to the FSM (via its actOnEvent() method).
-    public dispatchRawEvent(what : 'press' | 'move' | 'release', 
+    public dispatchRawEvent(what : 'press' | 'move' | 'release' | 'click', 
                             localX : number, localY : number) 
     {
         // if we have no FSM, there is nothing to dispatch to
@@ -249,6 +250,9 @@ export class FSMInteractor {
         // for new entered regions, dispatch to enter event
         enterRegions.forEach(x => fsm.actOnEvent('enter', x))
         switch (what){
+            case "click":
+                currRegions.forEach(x => fsm.actOnEvent('click', x))
+                break;
             case "press":
                 // Dispatch press event to all current regions
                 currRegions.forEach(x => fsm.actOnEvent('press', x))
@@ -261,7 +265,6 @@ export class FSMInteractor {
                 if (currRegions.length > 0){
                     // released in current regions
                     currRegions.forEach(x => fsm.actOnEvent('release', x))
-                    
                 }else{
                     // we released in undefined region.
                     fsm.actOnEvent('release_none')
@@ -283,7 +286,7 @@ export class FSMInteractor {
     // unpacked into an FSM_json object which is in turn used by FSM.fromJson() to create 
     // an FSM object installed as our fsm property.  Finally we declare damage to our 
     // parent object to arrange for redraw with the newly installed FSM.
-    public async startLoadFromJson(jsonLoc : string) {
+    public async startLoadFromJson(jsonLoc : string, root:Root) {
         // try to load the json text from the given location
         const response = await fetch(jsonLoc);
 
@@ -297,7 +300,7 @@ export class FSMInteractor {
         const data : FSM_json = await response.json();
 
         // validate and build an actual FSM object out of that
-        this._fsm = FSM.fromJson(data, this);
+        this._fsm = FSM.fromJson(data, root.canvasContext, this);
 
          // we just changed everything, so declare damage
          this.damage();

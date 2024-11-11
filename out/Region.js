@@ -13,10 +13,19 @@ import { Check } from "./Check.js";
 export class Region {
     constructor(name = "", imageLoc = "", x = 0, y = 0, w = -1, // -1 here implies we resize based on image
     h = -1, // -1 here implies we resize base on image) 
-    parent) {
+    canvas, parent) {
+        this._drawingLine = false;
+        this._cursorX = 0;
+        this._cursorY = 0;
         this._name = name;
         this._parent = parent;
         this._imageLoc = imageLoc;
+        this._canvas = canvas;
+        this._setted = false;
+        this._tool = "";
+        this._onMouseDownBound = (evt) => null;
+        this._onMouseMoveBound = (evt) => null;
+        this._onMouseUpBound = (evt) => null;
         // if either of the sizes is -1, we set to resize based on the image
         this._resizedByImage = ((w < 0) || (h < 0));
         // -1 size defaults to 0 (but replaced on load)
@@ -35,7 +44,7 @@ export class Region {
     // Construct a Region from a Region_json object, checking all the parts (since data 
     // coming from json parsing lives in javascript land and may not actually be typed
     // at runtime as we think/hope it is).
-    static fromJson(reg, parent) {
+    static fromJson(reg, canvas, parent) {
         var _a, _b, _c, _d, _e;
         const name = reg.name;
         const x = Check.numberVal((_a = reg.x) !== null && _a !== void 0 ? _a : 0, "Region.fromJson{x:}");
@@ -43,7 +52,90 @@ export class Region {
         const w = Check.numberVal((_c = reg.w) !== null && _c !== void 0 ? _c : -1, "Region.fromJson{w:}");
         const h = Check.numberVal((_d = reg.h) !== null && _d !== void 0 ? _d : -1, "Region.fromJson{h:}");
         const imageLoc = Check.stringVal((_e = reg.imageLoc) !== null && _e !== void 0 ? _e : "", "Region.fromJson{imageLoc:}");
-        return new Region(name, imageLoc, x, y, w, h, parent);
+        return new Region(name, imageLoc, x, y, w, h, canvas, parent);
+    }
+    _setupCanvasEventHandlers(tool) {
+        this.setted = true;
+        this._tool = tool;
+        // Bind the methods so we can add and remove the exact same references
+        this._onMouseDownBound = (evt) => this._onMouseDown(evt, tool);
+        this._onMouseMoveBound = (evt) => this._onMouseMove(evt, tool);
+        this._onMouseUpBound = (evt) => this._onMouseUp(evt);
+        // Start drawing line on mousedown
+        this.canvas.canvas.addEventListener("mousedown", this._onMouseDownBound);
+        this.canvas.canvas.addEventListener("mousemove", this._onMouseMoveBound);
+        this.canvas.canvas.addEventListener("mouseup", this._onMouseUpBound);
+    }
+    removeListeners() {
+        // Ensure listeners are removed using the bound references
+        console.log("removing listeners");
+        this.canvas.canvas.removeEventListener("mousedown", this._onMouseDownBound);
+        this.canvas.canvas.removeEventListener("mousemove", this._onMouseMoveBound);
+        this.canvas.canvas.removeEventListener("mouseup", this._onMouseUpBound);
+        this._tool = "";
+        this._drawingLine = false;
+        this.setted = false;
+    }
+    _onMouseDown(evt, tool) {
+        console.log("mousedown", evt);
+        this._drawingLine = true;
+        if (tool === "") {
+            return;
+        }
+        this._cursorX = evt.offsetX;
+        this._cursorY = evt.offsetY;
+    }
+    _onMouseMove(evt, tool) {
+        if (!this._drawingLine || this._tool === "") {
+            return;
+        }
+        const ctx = this.canvas;
+        if (ctx) {
+            // Clear the canvas on every move to redraw the current shape
+            // ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            this.drawTools(ctx, evt);
+        }
+        // this._cursorX = evt.offsetX;
+        // this._cursorY = evt.offsetY;
+        // this.damage(); 
+    }
+    _onMouseUp(evt) {
+        console.log("mouse up");
+        this._drawingLine = false;
+    }
+    drawTools(ctx, evt) {
+        switch (this._tool) {
+            case "line":
+                ctx.beginPath();
+                ctx.moveTo(this._cursorX, this._cursorY);
+                ctx.lineTo(evt.offsetX, evt.offsetY);
+                ctx.stroke();
+                ctx.closePath();
+                break;
+            case "rect":
+                const width = evt.offsetX - this._cursorX;
+                const height = evt.offsetY - this._cursorY;
+                ctx.strokeRect(this._cursorX, this._cursorY, width, height);
+                break;
+        }
+    }
+    get canvas() { return this._canvas; }
+    set canvas(v) {
+        if (!(this._canvas === v)) {
+            this._canvas = v;
+        }
+    }
+    get setted() { return this._setted; }
+    set setted(v) {
+        if (!(this._setted === v)) {
+            this._setted = v;
+        }
+    }
+    get tool() { return this.tool; }
+    set tool(v) {
+        if (!(this._tool === v)) {
+            this._tool = v;
+        }
     }
     get x() { return this._x; }
     set x(v) {
@@ -144,17 +236,30 @@ export class Region {
         // if we have a valid loaded image, draw it
         if (this.loaded && !this.loadError && this.image) {
             // **** YOUR CODE HERE ****
-            // if it is the line region, draw a line to represent it
             // Draw the image for this region using the givn drawing context. 
             ctx.drawImage(this.image, 0, 0, this.w, this.h);
         }
-        // //draw a frame indicating the (input) bounding box if requested
-        // if (showDebugFrame) {
-        //     ctx.save();
-        //         ctx.strokeStyle = 'black';
-        //         ctx.strokeRect(0, 0, this.w, this.h);
-        //     ctx.restore();
-        // }
+        //draw a frame indicating the (input) bounding box if requested
+        if ((showDebugFrame) && (this.name === "canvas")) {
+            ctx.save();
+            ctx.strokeStyle = 'black';
+            ctx.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+            ctx.restore();
+        }
+    }
+    startDraw(type) {
+        console.log("start draw");
+        const ctx = this.canvas;
+        switch (type) {
+            case "line":
+                if (this.name === "canvas" && this.setted === false) {
+                    this._setupCanvasEventHandlers("line");
+                }
+            case 'rect':
+                if (this.name === "canvas" && this.setted === false) {
+                    this._setupCanvasEventHandlers("rect");
+                }
+        }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Declare that something about this region which could affect its drawn appearance

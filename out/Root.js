@@ -6,6 +6,7 @@
 //===================================================================
 export class Root {
     constructor(canvasID) {
+        this.canvas = this.canvasContext;
         // Whether we request extra debugging output when our child objects are 
         // drawn.  This defaults to false, but setting it true will provide additional
         // output that makes understanding and debugging FSM behavior easier (but is not 
@@ -26,6 +27,8 @@ export class Root {
         // corresponding up event, we know we lost (at least one) up event and can generate 
         // one.
         this._lastButtonsState = 0;
+        //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        this._clickCheck = "";
         this._children = [];
         // get the canvas object we will draw on and set our w/h to match that
         this._canvasContext = this._getCanvasContext(canvasID);
@@ -164,7 +167,8 @@ export class Root {
         this._batchingDamage = saveBatching;
         this._damageResponse();
     }
-    //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+    get clickCheck() { return this._clickCheck; }
+    set clickCheck(v) { this._clickCheck = v; }
     // Dispatch a simplified form of event to one child object.  Simplified events
     // are of three types press, move, and release, where press and release are of the 
     // primary locator button only.  Simplified events are represented by an event 
@@ -181,14 +185,22 @@ export class Root {
                 if (evt.button !== 0)
                     return;
                 evtKind = 'press';
+                this.clickCheck = "mousedown";
                 break;
             case 'mouseup':
                 if (evt.button !== 0)
                     return;
+                if (this.clickCheck = "mousedown") {
+                    evtKind = "click";
+                    this.clickCheck = "";
+                }
                 evtKind = 'release';
                 break;
             case 'mousemove':
                 evtKind = 'move';
+                if (this.clickCheck = "mousedown") {
+                    this.clickCheck = "";
+                }
                 break;
             default:
                 return;

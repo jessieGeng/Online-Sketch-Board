@@ -38,6 +38,9 @@ export type Region_json = {
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 export class Region {
+    private _drawingLine: boolean = false;
+    private _cursorX: number = 0;
+    private _cursorY: number = 0;
     public constructor (
 		name      : string = "", 
 		imageLoc  : string = "",
@@ -45,11 +48,19 @@ export class Region {
 		y         : number = 0,
 		w         : number = -1, // -1 here implies we resize based on image
 		h         : number = -1, // -1 here implies we resize base on image) 
-        parent?   : FSM) 
+        canvas   : CanvasRenderingContext2D,
+        parent?   : FSM
+        ) 
 	{
         this._name = name;
         this._parent = parent;
         this._imageLoc = imageLoc;
+        this._canvas = canvas;
+        this._setted = false;
+        this._tool = "";
+        this._onMouseDownBound = (evt) => null;
+        this._onMouseMoveBound = (evt) =>null;
+        this._onMouseUpBound = (evt) => null;
 
         // if either of the sizes is -1, we set to resize based on the image
         this._resizedByImage = ((w < 0) || (h < 0));
@@ -60,6 +71,7 @@ export class Region {
 
         this._x = x;   this._y = y; 
         this._w = w;   this._h = h;
+        
 
         // start the image loading;  this.damage() will be called asynchonously 
         // when that is complete
@@ -71,7 +83,7 @@ export class Region {
     // Construct a Region from a Region_json object, checking all the parts (since data 
     // coming from json parsing lives in javascript land and may not actually be typed
     // at runtime as we think/hope it is).
-    public static fromJson(reg : Region_json, parent? : FSM) : Region {
+    public static fromJson(reg : Region_json, canvas:CanvasRenderingContext2D, parent? : FSM) : Region {
         const name : string = reg.name;
     
         const x = Check.numberVal(reg.x??0, "Region.fromJson{x:}");    
@@ -80,12 +92,122 @@ export class Region {
         const h = Check.numberVal(reg.h??-1, "Region.fromJson{h:}");    
         const imageLoc = Check.stringVal(reg.imageLoc??"", "Region.fromJson{imageLoc:}");    
         
-        return new Region(name, imageLoc, x,y, w,h, parent);
+        return new Region(name, imageLoc, x,y, w,h, canvas, parent);
     }
+
+    private _onMouseDownBound: (evt: MouseEvent) => void;
+    private _onMouseMoveBound: (evt: MouseEvent) => void;
+    private _onMouseUpBound: (evt: MouseEvent) => void;
+    
+    private _setupCanvasEventHandlers(tool: string) {
+        this.setted = true;
+        this._tool = tool;
+    
+        // Bind the methods so we can add and remove the exact same references
+        this._onMouseDownBound = (evt) => this._onMouseDown(evt, tool);
+        this._onMouseMoveBound = (evt) => this._onMouseMove(evt, tool);
+        this._onMouseUpBound = (evt) => this._onMouseUp(evt);
+    
+        // Start drawing line on mousedown
+        this.canvas.canvas.addEventListener("mousedown", this._onMouseDownBound);
+        this.canvas.canvas.addEventListener("mousemove", this._onMouseMoveBound);
+        this.canvas.canvas.addEventListener("mouseup", this._onMouseUpBound);
+    }
+    
+    public removeListeners() {
+        // Ensure listeners are removed using the bound references
+        console.log("removing listeners");
+        this.canvas.canvas.removeEventListener("mousedown", this._onMouseDownBound);
+        this.canvas.canvas.removeEventListener("mousemove", this._onMouseMoveBound);
+        this.canvas.canvas.removeEventListener("mouseup", this._onMouseUpBound);
+    
+        this._tool = "";
+        this._drawingLine = false;
+        this.setted = false;
+    }
+    
+
+    private _onMouseDown(evt: MouseEvent, tool:string) {
+        console.log("mousedown",evt);
+        this._drawingLine = true;
+        if(tool === ""){
+            return;
+        }
+        this._cursorX = evt.offsetX;
+        this._cursorY = evt.offsetY;
+    }
+
+    private _onMouseMove(evt: MouseEvent,tool:string) {
+        if (!this._drawingLine || this._tool === "") {
+            return;
+        }
+        
+        const ctx = this.canvas;
+        if (ctx) {
+            // Clear the canvas on every move to redraw the current shape
+            // ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    
+            this.drawTools(ctx, evt)
+        }
+            
+        // this._cursorX = evt.offsetX;
+        // this._cursorY = evt.offsetY;
+        // this.damage(); 
+        
+    }
+
+    private _onMouseUp(evt:MouseEvent) {
+        console.log("mouse up")
+        this._drawingLine = false;
+        
+
+    }
+
+    private drawTools(ctx:CanvasRenderingContext2D, evt:MouseEvent){
+        switch (this._tool) {
+            case "line":
+                ctx.beginPath();
+                ctx.moveTo(this._cursorX, this._cursorY);
+                ctx.lineTo(evt.offsetX, evt.offsetY);
+                ctx.stroke();
+                ctx.closePath();
+                break;
+
+            case "rect":
+                const width = evt.offsetX - this._cursorX;
+                const height = evt.offsetY - this._cursorY;
+                ctx.strokeRect(this._cursorX, this._cursorY, width, height);
+                break;
+    }
+}
      
     //-------------------------------------------------------------------
     // Properties 
     //-------------------------------------------------------------------
+
+    protected _canvas : CanvasRenderingContext2D;
+    public get canvas() {return this._canvas;}
+    public set canvas(v : CanvasRenderingContext2D) {
+        if (!(this._canvas === v)){
+            this._canvas = v;
+        }
+    }
+
+    protected _setted : boolean;
+    public get setted() {return this._setted;}
+    public set setted(v : boolean) {
+        if (!(this._setted === v)){
+            this._setted = v;
+        }
+    }
+
+    protected _tool : string;
+    public get tool() {return this.tool;}
+    public set tool(v : string) {
+        if (!(this._tool === v)){
+            this._tool = v;
+        }
+    }
 
     // X position of this object in our parent's coordinate system
 	protected _x : number;
@@ -265,7 +387,7 @@ export class Region {
         if (this.loaded && !this.loadError && this.image) {
                
             // **** YOUR CODE HERE ****
-            // if it is the line region, draw a line to represent it
+            
             
             // Draw the image for this region using the givn drawing context. 
             ctx.drawImage(this.image, 0,0, this.w, this.h);
@@ -273,13 +395,30 @@ export class Region {
 
         }
         
-        // //draw a frame indicating the (input) bounding box if requested
-        // if (showDebugFrame) {
-        //     ctx.save();
-        //         ctx.strokeStyle = 'black';
-        //         ctx.strokeRect(0, 0, this.w, this.h);
-        //     ctx.restore();
-        // }
+        //draw a frame indicating the (input) bounding box if requested
+        if ((showDebugFrame) && (this.name === "canvas")) {
+            ctx.save();
+                ctx.strokeStyle = 'black';
+                ctx.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+            ctx.restore();
+        }
+    }
+
+    public startDraw(type: string){
+        
+        console.log("start draw");
+        const ctx = this.canvas;
+        switch(type){
+            case "line":
+                if(this.name === "canvas" && this.setted === false){
+                    this._setupCanvasEventHandlers("line");
+                }
+            
+            case 'rect':
+                if(this.name === "canvas" && this.setted === false){
+                    this._setupCanvasEventHandlers("rect");
+                }
+        }
     }
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

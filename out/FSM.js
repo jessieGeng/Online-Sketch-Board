@@ -17,7 +17,7 @@ export class FSM {
     // Construct an FSM from an FSM_json object, checking all the parts (since data 
     // coming from json parsing lives in javascript land and may not actually be typed
     // at runtime as we think/hope it is).
-    static fromJson(fsm, parent) {
+    static fromJson(fsm, canvas, parent) {
         // start collecting region declarations
         let allNames = new Set();
         let regions = [];
@@ -33,7 +33,7 @@ export class FSM {
                     Err.emit(`Duplicate region '${reg.name}' declaration in FSM`);
                 }
                 else { // no -- add it
-                    regions.push(Region.fromJson(reg));
+                    regions.push(Region.fromJson(reg, canvas));
                     allNames.add(reg.name);
                 }
             }

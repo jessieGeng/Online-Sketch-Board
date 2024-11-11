@@ -25,7 +25,7 @@ export function runTests() {
     // root.addChild(fsmInt);
     let fsmInt = new FSMInteractor(undefined, 0, 0);
     root.addChild(fsmInt);
-    fsmInt.startLoadFromJson("./fsm_json/project.json");
+    fsmInt.startLoadFromJson("./fsm_json/project.json", root);
     console.log("Test is set up...");
 }
 //-------------------------------------------------------------------

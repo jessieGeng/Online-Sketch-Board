@@ -1,6 +1,6 @@
 import { Err } from "./Err.js";
 import { Check } from "./Check.js";
-const actionTypeStrings = ['set_image', 'clear_image', 'none', 'print', 'print_event', 'balloon_bigger', 'balloon_rest', 'hand_move', 'line_shorter', 'hand_rest', 'line_rest'];
+const actionTypeStrings = ['set_image', 'clear_image', 'none', 'print', 'print_event', 'select_lineBrush', 'draw_line', 'draw_rect', 'stopCurrentDrawing'];
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 export class Action {
     constructor(actType, regionName, param) {
@@ -29,8 +29,10 @@ export class Action {
     // Carry out the action represented by this object.  evtType and evtReg describe
     // the event which is causing the action (for use by print_event actions).
     execute(evtType, evtReg) {
+        var _a, _b, _c;
         if (this._actType === 'none')
             return;
+        console.log(evtType);
         // **** YOUR CODE HERE ****
         switch (this._actType) {
             case 'set_image':
@@ -54,62 +56,17 @@ export class Action {
                 // print the parameter value followed by a dump of the current event 
                 console.log("Current event: ", this._param, evtType, evtReg === null || evtReg === void 0 ? void 0 : evtReg.debugString());
                 break;
-            case 'balloon_bigger':
-                // when we are inflating the balloon, make the picture of the balloon bigger
-                if (this.onRegion) {
-                    // if the balloon already boom... we cannot inflate it.
-                    if (this.onRegion.imageLoc === "./images/boom.png") {
-                        break;
-                    }
-                    // modify x and y such that it looks like the balloon is still on the same position
-                    this.onRegion.x -= 5;
-                    this.onRegion.y -= 10;
-                    this.onRegion.w += 10;
-                    this.onRegion.h += 10;
-                    // when reach a random value it will boom...randomly.
-                    if (this.onRegion.w > (Math.floor(Math.random() * 1000) + 100)) {
-                        this.onRegion.imageLoc = this.param;
-                    }
-                }
+            case 'draw_line':
+                console.log("action: draw_line");
+                (_a = this.onRegion) === null || _a === void 0 ? void 0 : _a.startDraw('line');
                 break;
-            case 'hand_move':
-                // when we are inflating the balloon, make the hand move up
-                if (this.onRegion) {
-                    this.onRegion.y -= 5;
-                }
+            case 'draw_rect':
+                console.log("action: draw_rect");
+                (_b = this.onRegion) === null || _b === void 0 ? void 0 : _b.startDraw('rect');
                 break;
-            case 'line_shorter':
-                // when we are inflating the balloon, make the line shorter
-                if (this.onRegion) {
-                    this.onRegion.h -= 5;
-                }
-                break;
-            case 'balloon_rest':
-                if (this.onRegion) {
-                    // reset the balloon to original params
-                    this.onRegion.x = 0;
-                    this.onRegion.y = 0;
-                    this.onRegion.w = 50;
-                    this.onRegion.h = 50;
-                }
-                break;
-            case 'hand_rest':
-                if (this.onRegion) {
-                    // reset the handle to original params
-                    this.onRegion.x = 15;
-                    this.onRegion.y = 190;
-                    this.onRegion.w = 20;
-                    this.onRegion.h = 20;
-                }
-                break;
-            case 'line_rest':
-                if (this.onRegion) {
-                    // reset the line to original params
-                    this.onRegion.x = 0;
-                    this.onRegion.y = 0;
-                    this.onRegion.w = 100;
-                    this.onRegion.h = 100;
-                }
+            case 'stopCurrentDrawing':
+                console.log("stopCurrentDrawing");
+                (_c = this.onRegion) === null || _c === void 0 ? void 0 : _c.removeListeners();
                 break;
             default:
                 throw new Error(`Unknown action type: ${this._actType}`);

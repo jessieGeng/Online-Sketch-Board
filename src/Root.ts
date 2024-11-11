@@ -16,8 +16,8 @@ export class Root {
          // get the canvas object we will draw on and set our w/h to match that
          this._canvasContext = this._getCanvasContext(canvasID);
          this._owningCanvas  = this._canvasContext.canvas;
-
          // setup canvas input callbacks
+
          this._setupCanvasInputHandlers();
     }
 
@@ -28,6 +28,9 @@ export class Root {
     // Child list
     protected _children : FSMInteractor[];
     public get children() : readonly FSMInteractor[] {return this._children;}
+
+    public canvas:CanvasRenderingContext2D = this.canvasContext;
+   
     
     // Add a child object to our child list, linking to us as parent appropriately.
     public addChild(newChild : FSMInteractor) {
@@ -204,7 +207,10 @@ export class Root {
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
- 
+    protected _clickCheck :string = "";
+    public get clickCheck() {return this._clickCheck;}
+    public set clickCheck(v : string) {this._clickCheck = v;}
+    
     // Dispatch a simplified form of event to one child object.  Simplified events
     // are of three types press, move, and release, where press and release are of the 
     // primary locator button only.  Simplified events are represented by an event 
@@ -216,22 +222,30 @@ export class Root {
         const childX : number = evt.offsetX - toChild.x;
         const childY : number = evt.offsetY - toChild.y;
 
-        let evtKind : 'press' | 'release' | 'move';
+        let evtKind : 'press' | 'release' | 'move' | 'click';
 
         // set kind for events we want, bail out for any others
         switch (evt.type) {
             case 'mousedown': 
                 if (evt.button !== 0) return
                 evtKind = 'press';
+                this.clickCheck = "mousedown";
             break;
 
             case 'mouseup': 
                 if (evt.button !== 0) return;
+                if (this.clickCheck = "mousedown"){
+                    evtKind = "click"
+                    this.clickCheck = ""
+                }
                 evtKind = 'release';
            break;
 
             case 'mousemove':
                 evtKind = 'move';
+                if (this.clickCheck = "mousedown"){
+                    this.clickCheck = ""
+                }
             break;
 
             default:
@@ -264,7 +278,7 @@ export class Root {
         const ctx = canv.getContext('2d');
         if (!ctx || !isCanvasRenderingContext2D(ctx)) 
             throw new Error(`Can't get rendering context for canvas element with id:"${canvasID}"`);
-
+        
         return ctx;
     }
  } // end class Root

@@ -70,7 +70,7 @@ export class FSM {
     // Construct an FSM from an FSM_json object, checking all the parts (since data 
     // coming from json parsing lives in javascript land and may not actually be typed
     // at runtime as we think/hope it is).
-    public static fromJson(fsm : FSM_json, parent? : FSMInteractor) : FSM {
+    public static fromJson(fsm : FSM_json, canvas:CanvasRenderingContext2D, parent? : FSMInteractor) : FSM {
         // start collecting region declarations
         let allNames = new Set<string>();
         let regions : Region[] = [];
@@ -85,7 +85,8 @@ export class FSM {
                 if (allNames.has(reg.name)) {
                     Err.emit(`Duplicate region '${reg.name}' declaration in FSM`);
                 } else { // no -- add it
-                    regions.push(Region.fromJson(reg));
+                    
+                    regions.push(Region.fromJson(reg, canvas));
                     allNames.add(reg.name);
                 }
             }
