@@ -69,7 +69,7 @@ export class Root {
         try {
             // **** YOUR CODE HERE ****
             // clear canvas
-            this.canvasContext.clearRect(0, 0, this.owningCanvas.width, this.owningCanvas.height);
+            // this.canvasContext.clearRect(0, 0, this.owningCanvas.width, this.owningCanvas.height);
             // iterate through all children
             for (let child of this.children) {
                 // save the state of the drawing context

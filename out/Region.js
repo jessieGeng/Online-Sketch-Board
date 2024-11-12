@@ -92,7 +92,7 @@ export class Region {
         const ctx = this.canvas;
         if (ctx) {
             // Clear the canvas on every move to redraw the current shape
-            // ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
             this.drawTools(ctx, evt);
         }
         // this._cursorX = evt.offsetX;
@@ -252,13 +252,15 @@ export class Region {
         const ctx = this.canvas;
         switch (type) {
             case "line":
-                if (this.name === "canvas" && this.setted === false) {
+                if (this.setted === false) {
                     this._setupCanvasEventHandlers("line");
                 }
+                break;
             case 'rect':
-                if (this.name === "canvas" && this.setted === false) {
+                if (this.setted === false) {
                     this._setupCanvasEventHandlers("rect");
                 }
+                break;
         }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
