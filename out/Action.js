@@ -1,6 +1,6 @@
 import { Err } from "./Err.js";
 import { Check } from "./Check.js";
-const actionTypeStrings = ['set_image', 'clear_image', 'none', 'print', 'print_event', 'select_lineBrush', 'draw_line', 'draw_rect', 'stopCurrentDrawing'];
+const actionTypeStrings = ['set_image', 'clear_image', 'none', 'print', 'print_event', 'select_lineBrush', 'draw_line', 'draw_rect', 'draw_circle', 'stopCurrentDrawing'];
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 export class Action {
     constructor(actType, regionName, param) {
@@ -29,7 +29,7 @@ export class Action {
     // Carry out the action represented by this object.  evtType and evtReg describe
     // the event which is causing the action (for use by print_event actions).
     execute(evtType, evtReg) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         if (this._actType === 'none')
             return;
         console.log(evtType);
@@ -64,9 +64,13 @@ export class Action {
                 console.log("action: draw_rect");
                 (_b = this.onRegion) === null || _b === void 0 ? void 0 : _b.startDraw('rect');
                 break;
+            case 'draw_circle':
+                console.log("action: draw_circle");
+                (_c = this.onRegion) === null || _c === void 0 ? void 0 : _c.startDraw('circle');
+                break;
             case 'stopCurrentDrawing':
                 console.log("stopCurrentDrawing");
-                (_c = this.onRegion) === null || _c === void 0 ? void 0 : _c.removeListeners();
+                (_d = this.onRegion) === null || _d === void 0 ? void 0 : _d.removeListeners();
                 break;
             default:
                 throw new Error(`Unknown action type: ${this._actType}`);

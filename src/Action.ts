@@ -23,8 +23,8 @@ import { Check } from "./Check.js";
 //===================================================================
 
 // A type for the actions we support, along with correponding strings
-export type ActionType = 'set_image' |  'clear_image' | 'none' | 'print' | 'print_event' | 'select_lineBrush' | 'draw_line' |  'draw_rect' | 'stopCurrentDrawing';
-const actionTypeStrings = ['set_image',  'clear_image', 'none', 'print', 'print_event','select_lineBrush', 'draw_line','draw_rect', 'stopCurrentDrawing'];
+export type ActionType = 'set_image' |  'clear_image' | 'none' | 'print' | 'print_event' | 'select_lineBrush' | 'draw_line' |  'draw_rect' | 'draw_circle' | 'stopCurrentDrawing';
+const actionTypeStrings = ['set_image',  'clear_image', 'none', 'print', 'print_event','select_lineBrush', 'draw_line','draw_rect', 'draw_circle', 'stopCurrentDrawing'];
 
 // The type we are expecting to get back from decoding json for an Action
 export type Action_json = {act: ActionType, region: string, param: string};
@@ -119,6 +119,11 @@ export class Action {
             case 'draw_rect':
                 console.log("action: draw_rect");
                 this.onRegion?.startDraw('rect');
+                break;
+            
+            case 'draw_circle':
+                console.log("action: draw_circle");
+                this.onRegion?.startDraw('circle');
                 break;
 
             case 'stopCurrentDrawing':

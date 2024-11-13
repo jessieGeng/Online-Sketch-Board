@@ -140,7 +140,34 @@ export class Region {
                 const height = evt.offsetY - this._cursorY;
                 ctx.strokeRect(this._cursorX, this._cursorY, width, height);
                 break;
+            case "circle":
+                ctx.beginPath();
+                let w = evt.offsetX - this._cursorX;
+                let h = evt.offsetY - this._cursorY;
+                if (w < 0)
+                    w = 0 - w;
+                if (h < 0)
+                    h = 0 - h;
+                ctx.ellipse(this._cursorX, this._cursorY, w, h, Math.PI / 4, 0, 2 * Math.PI);
+                // this.drawEllipse(ctx,this._cursorX, this._cursorY, w, h)
+                ctx.stroke();
+                break;
         }
+    }
+    drawEllipse(ctx, centerX, centerY, width, height) {
+        console.log("draw ellipse");
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY - height / 2); // A1
+        ctx.bezierCurveTo(centerX + width / 2, centerY - height / 2, // C1
+        centerX + width / 2, centerY + height / 2, // C2
+        centerX, centerY + height / 2); // A2
+        ctx.bezierCurveTo(centerX - width / 2, centerY + height / 2, // C3
+        centerX - width / 2, centerY - height / 2, // C4
+        centerX, centerY - height / 2); // A1
+        // ctx.fillStyle = "red";
+        // ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
     }
     get canvas() { return this._canvas; }
     set canvas(v) {
@@ -273,18 +300,21 @@ export class Region {
     startDraw(type) {
         console.log("start draw");
         const ctx = this.canvas;
-        switch (type) {
-            case "line":
-                if (this.setted === false) {
-                    this._setupCanvasEventHandlers("line");
-                }
-                break;
-            case 'rect':
-                if (this.setted === false) {
-                    this._setupCanvasEventHandlers("rect");
-                }
-                break;
+        if (this.setted === false) {
+            this._setupCanvasEventHandlers(type);
         }
+        // switch(type){
+        //     case "line":
+        //         if(this.setted === false){
+        //             this._setupCanvasEventHandlers("line");
+        //         }
+        //         break;
+        //     case 'rect':
+        //         if(this.setted === false){
+        //             this._setupCanvasEventHandlers("rect");
+        //         }
+        //         break;
+        // }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Declare that something about this region which could affect its drawn appearance
