@@ -97,6 +97,7 @@ export class Region {
         if (this._cursorX === -1) {
             this._cursorX = evt.offsetX;
             this._cursorY = evt.offsetY;
+            this._drawingLine = true;
         }
         if (!this._drawingLine || this._tool === "") {
             return;
