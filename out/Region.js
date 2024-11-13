@@ -149,25 +149,9 @@ export class Region {
                 if (h < 0)
                     h = 0 - h;
                 ctx.ellipse(this._cursorX, this._cursorY, w, h, Math.PI / 4, 0, 2 * Math.PI);
-                // this.drawEllipse(ctx,this._cursorX, this._cursorY, w, h)
                 ctx.stroke();
                 break;
         }
-    }
-    drawEllipse(ctx, centerX, centerY, width, height) {
-        console.log("draw ellipse");
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY - height / 2); // A1
-        ctx.bezierCurveTo(centerX + width / 2, centerY - height / 2, // C1
-        centerX + width / 2, centerY + height / 2, // C2
-        centerX, centerY + height / 2); // A2
-        ctx.bezierCurveTo(centerX - width / 2, centerY + height / 2, // C3
-        centerX - width / 2, centerY - height / 2, // C4
-        centerX, centerY - height / 2); // A1
-        // ctx.fillStyle = "red";
-        // ctx.fill();
-        ctx.stroke();
-        ctx.closePath();
     }
     get canvas() { return this._canvas; }
     set canvas(v) {
