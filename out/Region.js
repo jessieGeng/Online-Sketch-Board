@@ -15,8 +15,8 @@ export class Region {
     h = -1, // -1 here implies we resize base on image) 
     canvas, parent) {
         this._drawingLine = false;
-        this._cursorX = 0;
-        this._cursorY = 0;
+        this._cursorX = -1;
+        this._cursorY = -1;
         this._name = name;
         this._parent = parent;
         this._imageLoc = imageLoc;
@@ -26,6 +26,10 @@ export class Region {
         this._onMouseDownBound = (evt) => null;
         this._onMouseMoveBound = (evt) => null;
         this._onMouseUpBound = (evt) => null;
+        this._bufferCanvas = document.createElement("canvas");
+        this._bufferCanvas.width = canvas.canvas.width;
+        this._bufferCanvas.height = canvas.canvas.height;
+        this._bufferContext = this._bufferCanvas.getContext("2d");
         // if either of the sizes is -1, we set to resize based on the image
         this._resizedByImage = ((w < 0) || (h < 0));
         // -1 size defaults to 0 (but replaced on load)
@@ -75,24 +79,32 @@ export class Region {
         this._tool = "";
         this._drawingLine = false;
         this.setted = false;
+        this._cursorX = -1;
+        this._cursorY = -1;
     }
     _onMouseDown(evt, tool) {
-        console.log("mousedown", evt);
+        console.log("mouse down:", evt.offsetX, evt.offsetY);
         this._drawingLine = true;
-        if (tool === "") {
-            return;
-        }
+        // if(tool === ""){
+        //     return;
+        // }
         this._cursorX = evt.offsetX;
         this._cursorY = evt.offsetY;
     }
     _onMouseMove(evt, tool) {
+        console.log("mouse move:", evt.offsetX, evt.offsetY);
         if (!this._drawingLine || this._tool === "") {
             return;
+        }
+        if (this._cursorX === -1) {
+            this._cursorX = evt.offsetX;
+            this._cursorY = evt.offsetY;
         }
         const ctx = this.canvas;
         if (ctx) {
             // Clear the canvas on every move to redraw the current shape
             ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            ctx.drawImage(this._bufferCanvas, 0, 0);
             this.drawTools(ctx, evt);
         }
         // this._cursorX = evt.offsetX;
@@ -100,10 +112,19 @@ export class Region {
         // this.damage(); 
     }
     _onMouseUp(evt) {
-        console.log("mouse up");
+        console.log("mouse up:", evt.offsetX, evt.offsetY);
         this._drawingLine = false;
+        const ctx = this._canvas;
+        // Save final stroke to buffer canvas
+        this.drawTools(this._bufferContext, evt);
+        // Clear main canvas
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        // Redraw buffer onto main canvas 
+        ctx.drawImage(this._bufferCanvas, 0, 0);
     }
     drawTools(ctx, evt) {
+        console.log("start:", this._cursorX, this._cursorY);
+        console.log("end:", evt.offsetX, evt.offsetY);
         switch (this._tool) {
             case "line":
                 ctx.beginPath();

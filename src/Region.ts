@@ -38,9 +38,13 @@ export type Region_json = {
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 export class Region {
+    private _bufferCanvas: HTMLCanvasElement; // Off-screen buffer for previous drawings
+    private _bufferContext: CanvasRenderingContext2D; // Context for the buffer canvas
+    
     private _drawingLine: boolean = false;
-    private _cursorX: number = 0;
-    private _cursorY: number = 0;
+    private _cursorX: number = -1;
+    private _cursorY: number = -1;
+
     public constructor (
 		name      : string = "", 
 		imageLoc  : string = "",
@@ -61,6 +65,13 @@ export class Region {
         this._onMouseDownBound = (evt) => null;
         this._onMouseMoveBound = (evt) =>null;
         this._onMouseUpBound = (evt) => null;
+
+        this._bufferCanvas = document.createElement("canvas");
+        this._bufferCanvas.width = canvas.canvas.width;
+        this._bufferCanvas.height = canvas.canvas.height;
+        this._bufferContext = this._bufferCanvas.getContext("2d") as CanvasRenderingContext2D;
+        
+
 
         // if either of the sizes is -1, we set to resize based on the image
         this._resizedByImage = ((w < 0) || (h < 0));
@@ -102,6 +113,7 @@ export class Region {
     private _setupCanvasEventHandlers(tool: string) {
         this.setted = true;
         this._tool = tool;
+
     
         // Bind the methods so we can add and remove the exact same references
         this._onMouseDownBound = (evt) => this._onMouseDown(evt, tool);
@@ -124,29 +136,41 @@ export class Region {
         this._tool = "";
         this._drawingLine = false;
         this.setted = false;
+        this._cursorX = -1;
+        this._cursorY = -1;
     }
     
 
     private _onMouseDown(evt: MouseEvent, tool:string) {
-        console.log("mousedown",evt);
+        console.log("mouse down:", evt.offsetX, evt.offsetY)      
         this._drawingLine = true;
-        if(tool === ""){
-            return;
-        }
+        // if(tool === ""){
+        //     return;
+        // }
+       
         this._cursorX = evt.offsetX;
         this._cursorY = evt.offsetY;
+
+        
     }
 
     private _onMouseMove(evt: MouseEvent,tool:string) {
+        console.log("mouse move:", evt.offsetX, evt.offsetY)
         if (!this._drawingLine || this._tool === "") {
             return;
         }
+        if(this._cursorX === -1){
+            this._cursorX = evt.offsetX;
+            this._cursorY = evt.offsetY;
+            
+        }        
+        
         
         const ctx = this.canvas;
         if (ctx) {
             // Clear the canvas on every move to redraw the current shape
             ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    
+            ctx.drawImage(this._bufferCanvas, 0, 0);
             this.drawTools(ctx, evt)
         }
             
@@ -157,13 +181,22 @@ export class Region {
     }
 
     private _onMouseUp(evt:MouseEvent) {
-        console.log("mouse up")        
+        console.log("mouse up:", evt.offsetX, evt.offsetY)              
         this._drawingLine = false;
-        
+        const ctx = this._canvas;
+        // Save final stroke to buffer canvas
+        this.drawTools(this._bufferContext, evt); 
+        // Clear main canvas
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        // Redraw buffer onto main canvas 
+        ctx.drawImage(this._bufferCanvas, 0, 0);
 
     }
 
     private drawTools(ctx:CanvasRenderingContext2D, evt:MouseEvent){
+        console.log("start:", this._cursorX, this._cursorY)
+        console.log("end:", evt.offsetX, evt.offsetY)
+        
         switch (this._tool) {
             case "line":
                 ctx.beginPath();
