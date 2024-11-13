@@ -156,15 +156,15 @@ export class Region {
 
     private _onMouseMove(evt: MouseEvent,tool:string) {
         console.log("mouse move:", evt.offsetX, evt.offsetY)
-        if (!this._drawingLine || this._tool === "") {
-            return;
-        }
+        // sometimes the mouse down is not detected. We need to update when it sense the first move
         if(this._cursorX === -1){
             this._cursorX = evt.offsetX;
             this._cursorY = evt.offsetY;
             
         }        
-        
+        if (!this._drawingLine || this._tool === "") {
+            return;
+        }
         
         const ctx = this.canvas;
         if (ctx) {
