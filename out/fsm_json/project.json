@@ -7,22 +7,22 @@
         },
         {
             "name": "line",
-            "x": 20, "y": 10, "w":20, "h":20, 
+            "x": 20, "y": 0, "w":30, "h":40, 
             "imageLoc": "./images/Line.png"
         }, 
         {
             "name": "rect",
-            "x": 80, "y": 10, "w":20, "h":20, 
+            "x": 80, "y": 0, "w":30, "h":40, 
             "imageLoc": "./images/rect.png"
         },
         {
             "name": "circle",
-            "x":140, "y": 10, "w":20, "h":20, 
+            "x":140, "y": 0, "w":30, "h":40, 
             "imageLoc": "./images/circle.png"
         },
         {
             "name": "erase",
-            "x": 200, "y": 10, "w":23, "h":23, 
+            "x": 200, "y": 0, "w":30, "h":23, 
             "imageLoc": "./images/erase.png"
         }, 
         {
@@ -92,7 +92,7 @@
                     "target" : "rest",
                     "actions" : [
                         {"act": "print_event", "param": "click: "}, 
-                        {"act":"set_image", "region":"line", "param":"./images/rect.png"},
+                        {"act":"set_image", "region":"rect", "param":"./images/rect.png"},
                         {"act":"stopCurrentDrawing", "region":"canvas"}
                     ]
                 }, 
