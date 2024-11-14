@@ -199,6 +199,8 @@ export class Region {
         console.log("draw tool:", this._tool)
         console.log("start:", this._cursorX, this._cursorY)
         console.log("end:", evt.offsetX, evt.offsetY)
+
+        ctx.strokeStyle = this.currentColor;
         
         switch (this._tool) {
             case "line":
@@ -236,6 +238,48 @@ export class Region {
 
     }
 }
+
+    public showColorWheel(evt:MouseEvent|undefined) {
+        console.log("show color wheel")
+        const colorWheel = document.createElement('div');
+        colorWheel.id = 'color-wheel';
+        colorWheel.style.position = 'absolute';
+        if(evt){
+            colorWheel.style.left = `${evt.offsetX + 10}px`;
+            colorWheel.style.top = `${evt.offsetY + 10}px`;
+        }else{
+            colorWheel.style.left = `${this.x}px`;  // position the color wheel at the right-click location
+            colorWheel.style.top = `${this.y}px`;
+        }
+    
+        // Add color options to the color wheel (simplified version)
+        const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+        colors.forEach(color => {
+            const colorBox = document.createElement('div');
+            colorBox.style.width = '30px';
+            colorBox.style.height = '30px';
+            colorBox.style.backgroundColor = color;
+            colorBox.style.margin = '5px';
+            colorBox.addEventListener('click', () => this.setColorForDrawing(color));
+            colorWheel.appendChild(colorBox);
+        });
+
+        document.body.appendChild(colorWheel);
+    }
+
+    private currentColor: string = '#000000'; // Default to black
+
+    private setColorForDrawing(color: string) {
+        this.currentColor = color;
+        console.log(`Selected color: ${color}`);
+        // Close the color wheel after selection
+        const colorWheel = document.getElementById('color-wheel');
+        if (colorWheel) {
+            colorWheel.remove();
+        }
+    }
+
+
 
 
      

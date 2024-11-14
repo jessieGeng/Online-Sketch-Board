@@ -1,6 +1,6 @@
 import { Err } from "./Err.js";
 import { Check } from "./Check.js";
-const actionTypeStrings = ['set_image', 'clear_image', 'none', 'print', 'print_event', 'select_lineBrush', 'draw_line', 'draw_rect', 'draw_circle', 'erase', 'stopCurrentDrawing'];
+const actionTypeStrings = ['set_image', 'clear_image', 'none', 'print', 'print_event', 'select_lineBrush', 'draw_line', 'draw_rect', 'draw_circle', 'erase', 'stopCurrentDrawing', 'select_color'];
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 export class Action {
     constructor(actType, regionName, param) {
@@ -28,11 +28,12 @@ export class Action {
     //-------------------------------------------------------------------
     // Carry out the action represented by this object.  evtType and evtReg describe
     // the event which is causing the action (for use by print_event actions).
-    execute(evtType, evtReg) {
-        var _a, _b, _c, _d, _e;
+    execute(evtType, evtReg, evt) {
+        var _a, _b, _c, _d, _e, _f;
         if (this._actType === 'none')
             return;
         console.log(evtType);
+        console.log(this._actType);
         // **** YOUR CODE HERE ****
         switch (this._actType) {
             case 'set_image':
@@ -75,6 +76,10 @@ export class Action {
             case 'stopCurrentDrawing':
                 console.log("stopCurrentDrawing");
                 (_e = this.onRegion) === null || _e === void 0 ? void 0 : _e.removeListeners();
+                break;
+            case "select_color":
+                // Trigger the display of the color wheel (you can implement this in the Region class)
+                (_f = this.onRegion) === null || _f === void 0 ? void 0 : _f.showColorWheel(evt);
                 break;
             default:
                 throw new Error(`Unknown action type: ${this._actType}`);

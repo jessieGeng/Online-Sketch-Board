@@ -134,6 +134,11 @@ export class Root {
         this.owningCanvas.onmousedown = (evt) => { this._handleCanvasEvent(evt); };
         this.owningCanvas.onmousemove = (evt) => { this._handleCanvasEvent(evt); };
         this.owningCanvas.onmouseup = (evt) => { this._handleCanvasEvent(evt); };
+        this.owningCanvas.addEventListener("contextmenu", (evt) => {
+            console.log("Right-click detected!");
+            evt.preventDefault(); // Prevent the default context menu from appearing
+            this._handleCanvasEvent(evt); // Custom right-click handling
+        });
     }
     // Handler that takes iput events from the canvas object.  These get delivered 
     // as a simplified form of event to each child object.  We also do extra tracking 
@@ -185,27 +190,23 @@ export class Root {
                 if (evt.button !== 0)
                     return;
                 evtKind = 'press';
-                this.clickCheck = "mousedown";
                 break;
             case 'mouseup':
                 if (evt.button !== 0)
                     return;
-                if (this.clickCheck = "mousedown") {
-                    evtKind = "click";
-                    this.clickCheck = "";
-                }
                 evtKind = 'release';
                 break;
             case 'mousemove':
                 evtKind = 'move';
-                if (this.clickCheck = "mousedown") {
-                    this.clickCheck = "";
-                }
+                break;
+            case 'contextmenu':
+                console.log("right click into dispatchToChild");
+                evtKind = 'rightClick';
                 break;
             default:
                 return;
         }
-        toChild.dispatchRawEvent(evtKind, childX, childY);
+        toChild.dispatchRawEvent(evtKind, childX, childY, evt);
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Utility method to pull out the canvas with the given id and extract 

@@ -184,7 +184,7 @@ export class FSMInteractor {
     // last drawn region should be dispatched first (i.e., events are delivered in 
     // reverse region drawing order). Note that all generated higher-level events
     // are dispatched to the FSM (via its actOnEvent() method).
-    dispatchRawEvent(what, localX, localY) {
+    dispatchRawEvent(what, localX, localY, evt) {
         // if we have no FSM, there is nothing to dispatch to
         if (this.fsm === undefined)
             return;
@@ -203,8 +203,8 @@ export class FSMInteractor {
         // for new entered regions, dispatch to enter event
         enterRegions.forEach(x => fsm.actOnEvent('enter', x));
         switch (what) {
-            case "click":
-                currRegions.forEach(x => fsm.actOnEvent('click', x));
+            case "rightClick":
+                currRegions.forEach(x => fsm.actOnEvent('rightClick', x, evt));
                 break;
             case "press":
                 // Dispatch press event to all current regions

@@ -155,6 +155,11 @@ export class Root {
         this.owningCanvas.onmousedown = (evt : MouseEvent ) => {this._handleCanvasEvent(evt);}
         this.owningCanvas.onmousemove = (evt : MouseEvent ) => {this._handleCanvasEvent(evt);}
         this.owningCanvas.onmouseup =   (evt : MouseEvent ) => {this._handleCanvasEvent(evt);}
+        this.owningCanvas.addEventListener("contextmenu", (evt: MouseEvent) => {
+            console.log("Right-click detected!");
+            evt.preventDefault(); // Prevent the default context menu from appearing
+            this._handleCanvasEvent(evt); // Custom right-click handling
+        });
     }
 
     // Bookkeeping for tracking the state of which mouse buttons were down at the last 
@@ -222,37 +227,37 @@ export class Root {
         const childX : number = evt.offsetX - toChild.x;
         const childY : number = evt.offsetY - toChild.y;
 
-        let evtKind : 'press' | 'release' | 'move' | 'click';
+        let evtKind : 'press' | 'release' | 'move' | 'rightClick';
 
         // set kind for events we want, bail out for any others
         switch (evt.type) {
             case 'mousedown': 
                 if (evt.button !== 0) return
                 evtKind = 'press';
-                this.clickCheck = "mousedown";
+                
             break;
 
             case 'mouseup': 
                 if (evt.button !== 0) return;
-                if (this.clickCheck = "mousedown"){
-                    evtKind = "click"
-                    this.clickCheck = ""
-                }
+                
                 evtKind = 'release';
            break;
 
             case 'mousemove':
                 evtKind = 'move';
-                if (this.clickCheck = "mousedown"){
-                    this.clickCheck = ""
-                }
+                
+            break;
+
+            case 'contextmenu':
+                console.log("right click into dispatchToChild")
+                evtKind = 'rightClick';
             break;
 
             default:
                 return;
         }
 
-        toChild.dispatchRawEvent(evtKind, childX, childY)
+        toChild.dispatchRawEvent(evtKind, childX, childY, evt)
     }
 
      //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

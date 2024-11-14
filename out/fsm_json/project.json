@@ -63,6 +63,13 @@
                     "actions" : [
                         {"act": "print_event", "param": "click: "}, 
                         {"act":"set_image", "region":"erase", "param":"./images/pressed_erase.png"}]
+                },
+                {
+                    "onEvent" : {"evtType" : "rightClick", "region" : "*"},
+                    "target" : "rest",
+                    "actions" : [
+                        {"act": "print_event", "param": "rightClick: "},
+                        {"act": "select_color", "region": "canvas"}]
                 }
             ]
         }, 
@@ -115,6 +122,13 @@
                         {"act": "print_event", "param": "draw line: "}, 
                         {"act": "draw_line", "region": "canvas"}
                 ]
+                },
+                {
+                    "onEvent" : {"evtType" : "rightClick", "region" : "*"},
+                    "target" : "lineBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "rightClick: "},
+                        {"act": "select_color", "region": "canvas"}]
                 }
             ]
         },
@@ -167,6 +181,14 @@
                         {"act": "print_event", "param": "draw line: "}, 
                         {"act": "draw_rect", "region": "canvas"}
                 ]
+                },
+                {
+                    "onEvent" : {"evtType" : "rightClick", "region" : "*"},
+                    "target" : "rectBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "rightClick: "},
+                        {"act": "select_color", "region": "canvas"}
+                    ]
                 }
             ]
         },
@@ -217,8 +239,15 @@
                     "target" : "circleBrush",
                     "actions" : [
                         {"act": "print_event", "param": "draw line: "}, 
-                        {"act": "draw_circle", "region": "canvas"}
-                ]
+                        {"act": "draw_circle", "region": "canvas"}]
+                },
+                {
+                    "onEvent" : {"evtType" : "rightClick", "region" : "*"},
+                    "target" : "circleBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "rightClick: "},
+                        {"act": "select_color", "region": "canvas"}
+                    ]
                 }
             ]
         },

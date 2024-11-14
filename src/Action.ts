@@ -23,8 +23,8 @@ import { Check } from "./Check.js";
 //===================================================================
 
 // A type for the actions we support, along with correponding strings
-export type ActionType = 'set_image' |  'clear_image' | 'none' | 'print' | 'print_event' | 'select_lineBrush' | 'draw_line' |  'draw_rect' | 'draw_circle' | 'erase' | 'stopCurrentDrawing';
-const actionTypeStrings = ['set_image',  'clear_image', 'none', 'print', 'print_event','select_lineBrush', 'draw_line','draw_rect', 'draw_circle', 'erase','stopCurrentDrawing'];
+export type ActionType = 'set_image' |  'clear_image' | 'none' | 'print' | 'print_event' | 'select_lineBrush' | 'draw_line' |  'draw_rect' | 'draw_circle' | 'erase' | 'stopCurrentDrawing' | 'select_color';
+const actionTypeStrings = ['set_image',  'clear_image', 'none', 'print', 'print_event','select_lineBrush', 'draw_line','draw_rect', 'draw_circle', 'erase','stopCurrentDrawing', 'select_color'];
 
 // The type we are expecting to get back from decoding json for an Action
 export type Action_json = {act: ActionType, region: string, param: string};
@@ -81,9 +81,10 @@ export class Action {
 
     // Carry out the action represented by this object.  evtType and evtReg describe
     // the event which is causing the action (for use by print_event actions).
-    public execute(evtType : EventType, evtReg? : Region) { 
+    public execute(evtType : EventType, evtReg? : Region, evt?:MouseEvent) { 
         if (this._actType === 'none') return;
         console.log(evtType);
+        console.log(this._actType)
         // **** YOUR CODE HERE ****
         switch (this._actType) {
             case 'set_image':
@@ -134,6 +135,11 @@ export class Action {
             case 'stopCurrentDrawing':
                 console.log("stopCurrentDrawing")
                 this.onRegion?.removeListeners()
+                break;
+            
+            case "select_color":
+                // Trigger the display of the color wheel (you can implement this in the Region class)
+                this.onRegion?.showColorWheel(evt);
                 break;
     
             default:

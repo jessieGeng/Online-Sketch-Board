@@ -24,9 +24,9 @@ import { Region } from "./Region.js";
 //===================================================================
 
 export type EventType = 'press' | 'release' | 'release_none' | 'enter' | 'exit' | 
-                        'move_inside' | 'click' | 'any' | 'nevermatch';
+                        'move_inside' | 'rightClick' | 'any' | 'nevermatch';
 const evtTypeStrings = ['press', 'release', 'release_none', 'enter', 'exit', 
-                        'move_inside', 'click','any', 'nevermatch'];
+                        'move_inside', 'rightClick','any', 'nevermatch'];
 
 export type EventSpec_json = {evtType : EventType, region: string};
 

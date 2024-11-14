@@ -241,7 +241,7 @@ export class FSM {
     // transition matching the given event is found, the transitin is "taken" (it's 
     // actions are executed, and the FSM moves to the indicated state).  At that point
     // the event is considered "consumed", and no additional transitions are considered.
-    public actOnEvent(evtType : EventType, reg? : Region) {
+    public actOnEvent(evtType : EventType, reg? : Region, evt?:MouseEvent) {
         // if we never got the current state bound (maybe a bad json FSM?) bail out
         if (!this.currentState) return;   
         // **** YOUR CODE HERE ****
@@ -249,7 +249,7 @@ export class FSM {
         let matchedTransit = this.currentState.transitions.find(x => x.match(evtType, reg))
         if (matchedTransit){
             // it's actions are executed,
-            matchedTransit.actions.forEach(x => x.execute(evtType, reg))
+            matchedTransit.actions.forEach(x => x.execute(evtType, reg, evt))
             // the FSM moves to the indicated state
             this._currentState = matchedTransit.target
         }
