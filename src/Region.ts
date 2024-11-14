@@ -169,17 +169,20 @@ export class Region {
         
         const ctx = this.canvas;
         if (ctx) {
-            // Clear the canvas on every move to redraw the current shape
-            if(tool === 'erase'){
+            if((tool === 'erase')){
+                // if it's erasing, we directly update on buffer canvas, don't remove adjustions
+                ctx.drawImage(this._bufferCanvas, 0, 0);
+                // this.drawTools(ctx, evt)
                 this.drawTools(this._bufferContext, evt);
             }else{
+                // Clear the canvas on every move to redraw the current shape
                 ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+                // draw the stored strokes from buffer
                 ctx.drawImage(this._bufferCanvas, 0, 0);
+                // do the current stroke
                 this.drawTools(ctx, evt)
             }
-            
         }
-        
     }
 
     private _onMouseUp(evt:MouseEvent) {
@@ -189,9 +192,9 @@ export class Region {
         // Save final stroke to buffer canvas
         this.drawTools(this._bufferContext, evt); 
         // Clear main canvas
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        // Redraw buffer onto main canvas 
-        ctx.drawImage(this._bufferCanvas, 0, 0);
+        // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        // // Redraw buffer onto main canvas 
+        // ctx.drawImage(this._bufferCanvas, 0, 0);
 
     }
 
@@ -231,7 +234,7 @@ export class Region {
                 const eraseRadius = 10;
                 ctx.beginPath();
                 ctx.arc(evt.offsetX, evt.offsetY, eraseRadius, 0, 2 * Math.PI);
-                ctx.fillStyle = "white";
+                ctx.fillStyle = "red";
                 ctx.fill();
                 ctx.closePath();
                 break;
