@@ -234,7 +234,7 @@ export class Region {
                 const eraseRadius = 10;
                 ctx.beginPath();
                 ctx.arc(evt.offsetX, evt.offsetY, eraseRadius, 0, 2 * Math.PI);
-                ctx.fillStyle = "red";
+                ctx.fillStyle = "white";
                 ctx.fill();
                 ctx.closePath();
                 break;
