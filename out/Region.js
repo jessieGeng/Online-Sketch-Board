@@ -14,7 +14,9 @@ export class Region {
     constructor(name = "", imageLoc = "", x = 0, y = 0, w = -1, // -1 here implies we resize based on image
     h = -1, // -1 here implies we resize base on image) 
     canvas, parent) {
+        // check if we are drawing or not (determine if mouse move should trigger draw)
         this._drawingLine = false;
+        // record previous cursor location (where the current stroke start)
         this._cursorX = -1;
         this._cursorY = -1;
         this._name = name;
@@ -105,13 +107,15 @@ export class Region {
         const ctx = this.canvas;
         if (ctx) {
             // Clear the canvas on every move to redraw the current shape
-            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-            ctx.drawImage(this._bufferCanvas, 0, 0);
-            this.drawTools(ctx, evt);
+            if (tool === 'erase') {
+                this.drawTools(this._bufferContext, evt);
+            }
+            else {
+                ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+                ctx.drawImage(this._bufferCanvas, 0, 0);
+                this.drawTools(ctx, evt);
+            }
         }
-        // this._cursorX = evt.offsetX;
-        // this._cursorY = evt.offsetY;
-        // this.damage(); 
     }
     _onMouseUp(evt) {
         console.log("mouse up:", evt.offsetX, evt.offsetY);
@@ -125,6 +129,7 @@ export class Region {
         ctx.drawImage(this._bufferCanvas, 0, 0);
     }
     drawTools(ctx, evt) {
+        console.log("draw tool:", this._tool);
         console.log("start:", this._cursorX, this._cursorY);
         console.log("end:", evt.offsetX, evt.offsetY);
         switch (this._tool) {
@@ -150,6 +155,14 @@ export class Region {
                     h = 0 - h;
                 ctx.ellipse(this._cursorX, this._cursorY, w, h, Math.PI / 4, 0, 2 * Math.PI);
                 ctx.stroke();
+                break;
+            case "erase":
+                const eraseRadius = 10;
+                ctx.beginPath();
+                ctx.arc(evt.offsetX, evt.offsetY, eraseRadius, 0, 2 * Math.PI);
+                ctx.fillStyle = "white";
+                ctx.fill();
+                ctx.closePath();
                 break;
         }
     }

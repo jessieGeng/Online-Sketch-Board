@@ -22,7 +22,7 @@
         },
         {
             "name": "erase",
-            "x": 200, "y": 0, "w":30, "h":23, 
+            "x": 200, "y": 0, "w":30, "h":40, 
             "imageLoc": "./images/erase.png"
         }, 
         {
@@ -56,6 +56,13 @@
                     "actions" : [
                         {"act": "print_event", "param": "click: "}, 
                         {"act":"set_image", "region":"circle", "param":"./images/pressed_circle.png"}]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "erase"},
+                    "target" : "eraser",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"erase", "param":"./images/pressed_erase.png"}]
                 }
             ]
         }, 
@@ -88,6 +95,16 @@
                         {"act": "print_event", "param": "click: "}, 
                         {"act":"set_image", "region":"line", "param":"./images/line.png"},
                         {"act":"set_image", "region":"circle", "param":"./images/pressed_circle.png"},
+                        {"act":"stopCurrentDrawing", "region":"canvas"}
+                    ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "erase"},
+                    "target" : "eraser",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"line", "param":"./images/line.png"},
+                        {"act":"set_image", "region":"erase", "param":"./images/pressed_erase.png"},
                         {"act":"stopCurrentDrawing", "region":"canvas"}
                     ]
                 },
@@ -134,6 +151,16 @@
                     ]
                 },
                 {
+                    "onEvent" : {"evtType" : "press", "region" : "erase"},
+                    "target" : "eraser",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"rect", "param":"./images/rect.png"},
+                        {"act":"set_image", "region":"erase", "param":"./images/pressed_erase.png"},
+                        {"act":"stopCurrentDrawing", "region":"canvas"}
+                    ]
+                },
+                {
                     "onEvent" : {"evtType" : "press", "region" : "canvas"},
                     "target" : "rectBrush",
                     "actions" : [
@@ -176,11 +203,73 @@
                     ]
                 },
                 {
+                    "onEvent" : {"evtType" : "press", "region" : "erase"},
+                    "target" : "eraser",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"circle", "param":"./images/circle.png"},
+                        {"act":"set_image", "region":"erase", "param":"./images/pressed_erase.png"},
+                        {"act":"stopCurrentDrawing", "region":"canvas"}
+                    ]
+                },
+                {
                     "onEvent" : {"evtType" : "press", "region" : "canvas"},
                     "target" : "circleBrush",
                     "actions" : [
                         {"act": "print_event", "param": "draw line: "}, 
                         {"act": "draw_circle", "region": "canvas"}
+                ]
+                }
+            ]
+        },
+        {
+            "name" : "eraser",
+            "transitions" : [
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "erase"},
+                    "target" : "rest",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"erase", "param":"./images/erase.png"},
+                        {"act":"stopCurrentDrawing", "region":"canvas"}
+                    ]
+                }, 
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "line"},
+                    "target" : "lineBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"erase", "param":"./images/erase.png"},
+                        {"act":"set_image", "region":"line", "param":"./images/pressed_line.png"},
+                        {"act":"stopCurrentDrawing", "region":"canvas"}
+                    ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "rect"},
+                    "target" : "rectBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"erase", "param":"./images/erase.png"},
+                        {"act":"set_image", "region":"rect", "param":"./images/pressed_rect.png"},
+                        {"act":"stopCurrentDrawing", "region":"canvas"}
+                    ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "circle"},
+                    "target" : "circleBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"erase", "param":"./images/erase.png"},
+                        {"act":"set_image", "region":"circle", "param":"./images/pressed_circle.png"},
+                        {"act":"stopCurrentDrawing", "region":"canvas"}
+                    ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "canvas"},
+                    "target" : "eraser",
+                    "actions" : [
+                        {"act": "print_event", "param": "erase: "}, 
+                        {"act": "erase", "region": "canvas"}
                 ]
                 }
             ]

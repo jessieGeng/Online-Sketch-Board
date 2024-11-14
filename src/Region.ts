@@ -38,10 +38,13 @@ export type Region_json = {
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 export class Region {
-    private _bufferCanvas: HTMLCanvasElement; // Off-screen buffer for previous drawings
-    private _bufferContext: CanvasRenderingContext2D; // Context for the buffer canvas
+    // Off-screen buffer for saving previous drawings
+    private _bufferCanvas: HTMLCanvasElement; 
+    private _bufferContext: CanvasRenderingContext2D; 
     
+    // check if we are drawing or not (determine if mouse move should trigger draw)
     private _drawingLine: boolean = false;
+    // record previous cursor location (where the current stroke start)
     private _cursorX: number = -1;
     private _cursorY: number = -1;
 
@@ -113,8 +116,6 @@ export class Region {
     private _setupCanvasEventHandlers(tool: string) {
         this.setted = true;
         this._tool = tool;
-
-    
         // Bind the methods so we can add and remove the exact same references
         this._onMouseDownBound = (evt) => this._onMouseDown(evt, tool);
         this._onMouseMoveBound = (evt) => this._onMouseMove(evt, tool);
@@ -169,14 +170,15 @@ export class Region {
         const ctx = this.canvas;
         if (ctx) {
             // Clear the canvas on every move to redraw the current shape
-            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-            ctx.drawImage(this._bufferCanvas, 0, 0);
-            this.drawTools(ctx, evt)
-        }
+            if(tool === 'erase'){
+                this.drawTools(this._bufferContext, evt);
+            }else{
+                ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+                ctx.drawImage(this._bufferCanvas, 0, 0);
+                this.drawTools(ctx, evt)
+            }
             
-        // this._cursorX = evt.offsetX;
-        // this._cursorY = evt.offsetY;
-        // this.damage(); 
+        }
         
     }
 
@@ -194,6 +196,7 @@ export class Region {
     }
 
     private drawTools(ctx:CanvasRenderingContext2D, evt:MouseEvent){
+        console.log("draw tool:", this._tool)
         console.log("start:", this._cursorX, this._cursorY)
         console.log("end:", evt.offsetX, evt.offsetY)
         
@@ -220,6 +223,15 @@ export class Region {
                 if (h < 0) h = 0-h;
                 ctx.ellipse(this._cursorX, this._cursorY, w, h,Math.PI / 4, 0, 2 * Math.PI)
                 ctx.stroke();
+                break;
+            
+            case "erase":
+                const eraseRadius = 10;
+                ctx.beginPath();
+                ctx.arc(evt.offsetX, evt.offsetY, eraseRadius, 0, 2 * Math.PI);
+                ctx.fillStyle = "white";
+                ctx.fill();
+                ctx.closePath();
                 break;
 
     }
