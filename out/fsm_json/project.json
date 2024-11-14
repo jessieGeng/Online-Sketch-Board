@@ -300,6 +300,14 @@
                         {"act": "print_event", "param": "erase: "}, 
                         {"act": "erase", "region": "canvas"}
                 ]
+                },
+                {
+                    "onEvent" : {"evtType" : "rightClick", "region" : "*"},
+                    "target" : "eraser",
+                    "actions" : [
+                        {"act": "print_event", "param": "rightClick: "},
+                        {"act": "select_color", "region": "canvas"}
+                    ]
                 }
             ]
         }
