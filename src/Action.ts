@@ -23,8 +23,8 @@ import { Check } from "./Check.js";
 //===================================================================
 
 // A type for the actions we support, along with correponding strings
-export type ActionType = 'set_image' |  'clear_image' | 'none' | 'print' | 'print_event' | 'select_lineBrush' | 'draw_line' |  'draw_rect' | 'draw_circle' | 'erase' | 'stopCurrentDrawing' | 'select_color';
-const actionTypeStrings = ['set_image',  'clear_image', 'none', 'print', 'print_event','select_lineBrush', 'draw_line','draw_rect', 'draw_circle', 'erase','stopCurrentDrawing', 'select_color'];
+export type ActionType = 'set_image' |  'clear_image' | 'none' | 'print' | 'print_event' | 'select_lineBrush' | 'draw_line' |  'draw_rect' | 'draw_circle' | 'erase' | 'stopCurrentDrawing' | 'select_color' | 'draw_free';
+const actionTypeStrings = ['set_image',  'clear_image', 'none', 'print', 'print_event','select_lineBrush', 'draw_line','draw_rect', 'draw_circle', 'erase','stopCurrentDrawing', 'select_color', 'draw_free'];
 
 // The type we are expecting to get back from decoding json for an Action
 export type Action_json = {act: ActionType, region: string, param: string};
@@ -140,6 +140,11 @@ export class Action {
             case "select_color":
                 // Trigger the display of the color wheel (you can implement this in the Region class)
                 this.onRegion?.showColorWheel(evt);
+                break;
+            
+            case 'draw_free':
+                console.log("action: draw free");
+                this.onRegion?.startDraw('free');
                 break;
     
             default:

@@ -169,7 +169,7 @@ export class Region {
         
         const ctx = this.canvas;
         if (ctx) {
-            if((tool === 'erase')){
+            if((tool === 'erase') || (tool === 'free')){
                 // if it's erasing, we directly update on buffer canvas, don't remove adjustions
                 ctx.drawImage(this._bufferCanvas, 0, 0);
                 // this.drawTools(ctx, evt)
@@ -237,6 +237,16 @@ export class Region {
                 ctx.fillStyle = "white";
                 ctx.fill();
                 ctx.closePath();
+                break;
+            
+            case "free":
+                ctx.beginPath();
+                ctx.moveTo(this._cursorX, this._cursorY);
+                ctx.lineTo(evt.offsetX, evt.offsetY);
+                ctx.stroke();
+                ctx.closePath();
+                this._cursorX = evt.offsetX;
+                this._cursorY = evt.offsetY;
                 break;
 
     }

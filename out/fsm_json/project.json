@@ -2,7 +2,7 @@
     "regions": [
         {
             "name": "tools",
-            "x": 0, "y": 0, "w":240, "h":40, 
+            "x": 0, "y": 0, "w":300, "h":40, 
             "imageLoc": "./images/tools.png"
         },
         {
@@ -78,10 +78,10 @@
             "transitions" : [
                 {
                     "onEvent" : {"evtType" : "press", "region" : "line"},
-                    "target" : "rest",
+                    "target" : "freeBrush",
                     "actions" : [
                         {"act": "print_event", "param": "click: "}, 
-                        {"act":"set_image", "region":"line", "param":"./images/line.png"},
+                        {"act":"set_image", "region":"line", "param":"./images/pressed_free.png"},
                         {"act":"stopCurrentDrawing", "region":"canvas"}
                     ]
                 }, 
@@ -126,6 +126,65 @@
                 {
                     "onEvent" : {"evtType" : "rightClick", "region" : "*"},
                     "target" : "lineBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "rightClick: "},
+                        {"act": "select_color", "region": "canvas"}]
+                }
+            ]
+        },
+        {
+            "name" : "freeBrush",
+            "transitions" : [
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "line"},
+                    "target" : "rest",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"line", "param":"./images/line.png"},
+                        {"act":"stopCurrentDrawing", "region":"canvas"}
+                    ]
+                }, 
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "rect"},
+                    "target" : "rectBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"line", "param":"./images/line.png"},
+                        {"act":"set_image", "region":"rect", "param":"./images/pressed_rect.png"},
+                        {"act":"stopCurrentDrawing", "region":"canvas"}
+                    ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "circle"},
+                    "target" : "circleBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"line", "param":"./images/line.png"},
+                        {"act":"set_image", "region":"circle", "param":"./images/pressed_circle.png"},
+                        {"act":"stopCurrentDrawing", "region":"canvas"}
+                    ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "erase"},
+                    "target" : "eraser",
+                    "actions" : [
+                        {"act": "print_event", "param": "click: "}, 
+                        {"act":"set_image", "region":"line", "param":"./images/line.png"},
+                        {"act":"set_image", "region":"erase", "param":"./images/pressed_erase.png"},
+                        {"act":"stopCurrentDrawing", "region":"canvas"}
+                    ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "canvas"},
+                    "target" : "freeBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "draw free: "}, 
+                        {"act": "draw_free", "region": "canvas"}
+                ]
+                },
+                {
+                    "onEvent" : {"evtType" : "rightClick", "region" : "*"},
+                    "target" : "freeBrush",
                     "actions" : [
                         {"act": "print_event", "param": "rightClick: "},
                         {"act": "select_color", "region": "canvas"}]
