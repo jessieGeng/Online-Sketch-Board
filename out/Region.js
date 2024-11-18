@@ -139,6 +139,7 @@ export class Region {
         console.log("start:", this._cursorX, this._cursorY);
         console.log("end:", evt.offsetX, evt.offsetY);
         ctx.strokeStyle = this.currentColor;
+        ctx.lineWidth = 1;
         switch (this._tool) {
             case "line":
                 ctx.beginPath();
@@ -164,12 +165,21 @@ export class Region {
                 ctx.stroke();
                 break;
             case "erase":
-                const eraseRadius = 10;
+                // const eraseRadius = 10;
+                // ctx.beginPath();
+                // ctx.arc(evt.offsetX, evt.offsetY, eraseRadius, 0, 2 * Math.PI);
+                // ctx.fillStyle = "white";
+                // ctx.fill();
+                // ctx.closePath();
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 10;
                 ctx.beginPath();
-                ctx.arc(evt.offsetX, evt.offsetY, eraseRadius, 0, 2 * Math.PI);
-                ctx.fillStyle = "white";
-                ctx.fill();
+                ctx.moveTo(this._cursorX, this._cursorY);
+                ctx.lineTo(evt.offsetX, evt.offsetY);
+                ctx.stroke();
                 ctx.closePath();
+                this._cursorX = evt.offsetX;
+                this._cursorY = evt.offsetY;
                 break;
             case "free":
                 ctx.beginPath();
