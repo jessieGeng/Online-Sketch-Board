@@ -19,9 +19,8 @@ export class Region {
         // record previous cursor location (where the current stroke start)
         this._cursorX = -1;
         this._cursorY = -1;
-        // Add a property for stroke size
-        this.currentStrokeSize = 1; // Default to 1px
-        this.currentColor = '#000000'; // Default to black
+        this.currentStrokeSize = 1;
+        this.currentColor = '#000000';
         this._name = name;
         this._parent = parent;
         this._imageLoc = imageLoc;
@@ -226,7 +225,7 @@ export class Region {
             colorBox.style.backgroundColor = color;
             colorBox.style.cursor = 'pointer';
             colorBox.addEventListener('click', () => {
-                this.setColorForDrawing(color);
+                this.currentColor = color;
                 container.remove();
                 document.removeEventListener('click', outsideClickListener);
             });
@@ -269,14 +268,78 @@ export class Region {
         this.currentStrokeSize = size;
         console.log(`Selected stroke size: ${size}`);
     }
-    setColorForDrawing(color) {
-        this.currentColor = color;
-        console.log(`Selected color: ${color}`);
-        // Close the color wheel after selection
-        const colorWheel = document.getElementById('color-wheel');
-        if (colorWheel) {
-            colorWheel.remove();
+    moveMenu(regionLs, tool) {
+        let startX = 0;
+        let startY = 0;
+        let dragging = false;
+        const initialPositions = [];
+        const isInteractiveElement = (target) => {
+            if (!target || !(target instanceof HTMLElement))
+                return false;
+            return (target.tagName === "INPUT");
+        };
+        // Mouse down: Start tracking the drag
+        const onMouseDown = (evt) => {
+            // Ignore the event if it starts on an interactive element
+            if (isInteractiveElement(evt.target))
+                return;
+            dragging = true;
+            startX = evt.clientX;
+            startY = evt.clientY;
+            // Record the initial positions of all regions
+            initialPositions.length = 0;
+            for (const region of regionLs) {
+                if (region.name === "canvas") {
+                    continue;
+                }
+                initialPositions.push({ region, x: region._x, y: region._y });
+            }
+            // Prevent text selection or unintended browser behavior
+            evt.preventDefault();
+        };
+        // Mouse move: Update the positions of the regions
+        const onMouseMove = (evt) => {
+            if (!dragging)
+                return;
+            const offsetX = evt.clientX - startX;
+            const offsetY = evt.clientY - startY;
+            // Update each region's position relative to the drag offset
+            for (const entry of initialPositions) {
+                const { region, x, y } = entry;
+                region._x = x + offsetX;
+                region._y = y + offsetY;
+            }
+            // Optionally, update the rendering to reflect the new positions
+            this.redrawRegions(regionLs);
+        };
+        // Mouse up: Finalize the drag and stop tracking
+        const onMouseUp = () => {
+            dragging = false;
+            // Remove event listeners when dragging is done
+            // document.removeEventListener("mousedown", onMouseMove);
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+        };
+        // Attach event listeners for drag behavior
+        document.addEventListener("mousedown", onMouseDown);
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
+    }
+    redrawRegions(regionLs) {
+        const ctx = this._canvas; // The main canvas context
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        for (const region of regionLs) {
+            // Optionally, draw a representation of the region
+            // ctx.strokeRect(region._x, region._y, region._w, region._h);
+            if (region._imageLoc) {
+                const img = new Image();
+                img.src = region._imageLoc;
+                img.onload = () => {
+                    ctx.drawImage(img, region._x, region._y, region._w, region._h);
+                };
+            }
         }
+        ctx.drawImage(this._bufferCanvas, 0, 0);
     }
     get canvas() { return this._canvas; }
     set canvas(v) {
@@ -407,23 +470,10 @@ export class Region {
         // }
     }
     startDraw(type) {
-        console.log("start draw");
         const ctx = this.canvas;
         if (this.setted === false) {
             this._setupCanvasEventHandlers(type);
         }
-        // switch(type){
-        //     case "line":
-        //         if(this.setted === false){
-        //             this._setupCanvasEventHandlers("line");
-        //         }
-        //         break;
-        //     case 'rect':
-        //         if(this.setted === false){
-        //             this._setupCanvasEventHandlers("rect");
-        //         }
-        //         break;
-        // }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Declare that something about this region which could affect its drawn appearance

@@ -234,7 +234,6 @@ export class Root {
             case 'mousedown': 
                 if (evt.button !== 0) return
                 evtKind = 'press';
-                
             break;
 
             case 'mouseup': 
@@ -245,11 +244,9 @@ export class Root {
 
             case 'mousemove':
                 evtKind = 'move';
-                
             break;
 
             case 'contextmenu':
-                console.log("right click into dispatchToChild")
                 evtKind = 'rightClick';
             break;
 

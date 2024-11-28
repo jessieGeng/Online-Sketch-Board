@@ -26,6 +26,11 @@
             "imageLoc": "./images/erase.png"
         }, 
         {
+            "name": "move",
+            "x": 250, "y": 0, "w":30, "h":40, 
+            "imageLoc": "./images/minimize.png"
+        },
+        {
             "name": "canvas",
             "x": 0, "y": 0, "w":1000, "h":1000, 
             "imageLoc": ""
@@ -63,6 +68,13 @@
                     "actions" : [
                         {"act": "print_event", "param": "click: "}, 
                         {"act":"set_image", "region":"erase", "param":"./images/pressed_erase.png"}]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "move"},
+                    "target" : "rest",
+                    "actions" : [
+                        {"act": "print_event", "param": "move: "},
+                        {"act": "move_menu", "region": "canvas", "param":"null"}]
                 },
                 {
                     "onEvent" : {"evtType" : "rightClick", "region" : "*"},
@@ -124,6 +136,14 @@
                 ]
                 },
                 {
+                    "onEvent" : {"evtType" : "press", "region" : "move"},
+                    "target" : "lineBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "move: "},
+                        {"act":"stopCurrentDrawing", "region":"canvas"},
+                        {"act": "move_menu", "region": "canvas", "param":"line"}]
+                },
+                {
                     "onEvent" : {"evtType" : "rightClick", "region" : "*"},
                     "target" : "lineBrush",
                     "actions" : [
@@ -183,6 +203,14 @@
                 ]
                 },
                 {
+                    "onEvent" : {"evtType" : "press", "region" : "move"},
+                    "target" : "freeBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "move: "},
+                        {"act":"stopCurrentDrawing", "region":"canvas"},
+                        {"act": "move_menu", "region": "canvas", "param":"free"}]
+                },
+                {
                     "onEvent" : {"evtType" : "rightClick", "region" : "*"},
                     "target" : "freeBrush",
                     "actions" : [
@@ -238,8 +266,16 @@
                     "target" : "rectBrush",
                     "actions" : [
                         {"act": "print_event", "param": "draw line: "}, 
-                        {"act": "draw_rect", "region": "canvas"}
-                ]
+                        {"act": "draw_rect", "region": "canvas", "param":"rect"}
+                    ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "move"},
+                    "target" : "rectBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "move: "},
+                        {"act": "stopCurrentDrawing", "region":"canvas"},
+                        {"act": "move_menu", "region": "canvas", "param":"rect"}]
                 },
                 {
                     "onEvent" : {"evtType" : "rightClick", "region" : "*"},
@@ -301,6 +337,22 @@
                         {"act": "draw_circle", "region": "canvas"}]
                 },
                 {
+                    "onEvent" : {"evtType" : "press", "region" : "canvas"},
+                    "target" : "circleBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "draw line: "}, 
+                        {"act": "draw_rect", "region": "canvas", "param":"circle"}
+                    ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "move"},
+                    "target" : "circleBrush",
+                    "actions" : [
+                        {"act": "print_event", "param": "move: "},
+                        {"act": "stopCurrentDrawing", "region":"canvas"},
+                        {"act": "move_menu", "region": "canvas", "param":"circle"}]
+                },
+                {
                     "onEvent" : {"evtType" : "rightClick", "region" : "*"},
                     "target" : "circleBrush",
                     "actions" : [
@@ -359,6 +411,22 @@
                         {"act": "print_event", "param": "erase: "}, 
                         {"act": "erase", "region": "canvas"}
                 ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "canvas"},
+                    "target" : "eraser",
+                    "actions" : [
+                        {"act": "print_event", "param": "draw line: "}, 
+                        {"act": "draw_rect", "region": "canvas", "param":"erase"}
+                    ]
+                },
+                {
+                    "onEvent" : {"evtType" : "press", "region" : "move"},
+                    "target" : "eraser",
+                    "actions" : [
+                        {"act": "print_event", "param": "move: "},
+                        {"act": "stopCurrentDrawing", "region":"canvas"},
+                        {"act": "move_menu", "region": "canvas", "param":"erase"}]
                 },
                 {
                     "onEvent" : {"evtType" : "rightClick", "region" : "*"},

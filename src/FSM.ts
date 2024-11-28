@@ -127,7 +127,7 @@ export class FSM {
 
     // List of regions for this FSM
     protected _regions : Region[];
-    public get regions() : readonly Region[] {return this._regions;}
+    public get regions() : Region[] {return this._regions;}
 
     // List of states for this FSM
     protected _states : State[];

@@ -23,8 +23,8 @@ import { Check } from "./Check.js";
 //===================================================================
 
 // A type for the actions we support, along with correponding strings
-export type ActionType = 'set_image' |  'clear_image' | 'none' | 'print' | 'print_event' | 'select_lineBrush' | 'draw_line' |  'draw_rect' | 'draw_circle' | 'erase' | 'stopCurrentDrawing' | 'select_color' | 'draw_free';
-const actionTypeStrings = ['set_image',  'clear_image', 'none', 'print', 'print_event','select_lineBrush', 'draw_line','draw_rect', 'draw_circle', 'erase','stopCurrentDrawing', 'select_color', 'draw_free'];
+export type ActionType = 'set_image' |  'clear_image' | 'none' | 'print' | 'print_event' | 'select_lineBrush' | 'draw_line' |  'draw_rect' | 'draw_circle' | 'erase' | 'stopCurrentDrawing' | 'select_color' | 'draw_free' | 'move_menu';
+const actionTypeStrings = ['set_image',  'clear_image', 'none', 'print', 'print_event','select_lineBrush', 'draw_line','draw_rect', 'draw_circle', 'erase','stopCurrentDrawing', 'select_color', 'draw_free', 'move_menu'];
 
 // The type we are expecting to get back from decoding json for an Action
 export type Action_json = {act: ActionType, region: string, param: string};
@@ -38,7 +38,8 @@ export class Action {
         this._actType = actType;
         this._onRegionName = regionName ?? "";
         this._param = param ?? "";
-        this._onRegion = undefined;  // will be established once we have the whole FSM
+        this._onRegion = undefined;
+        this._regionLs = [];  // will be established once we have the whole FSM
     }
 
     // Construct an Action from an Action_json object.  We type check all the parts here
@@ -83,8 +84,8 @@ export class Action {
     // the event which is causing the action (for use by print_event actions).
     public execute(evtType : EventType, evtReg? : Region, evt?:MouseEvent) { 
         if (this._actType === 'none') return;
-        console.log(evtType);
-        console.log(this._actType)
+        console.log("evtType:",evtType);
+        console.log("actType:",this._actType)
         // **** YOUR CODE HERE ****
         switch (this._actType) {
             case 'set_image':
@@ -145,19 +146,23 @@ export class Action {
                 console.log("action: draw free");
                 this.onRegion?.startDraw('free');
                 break;
+
+            case 'move_menu':
+                this.onRegion?.moveMenu(this._regionLs, this.param)
     
-            default:
-                throw new Error(`Unknown action type: ${this._actType}`);
+            // default:
+            //     throw new Error(`Unknown action type: ${this._actType}`);
         }
        
     }
 
+    public _regionLs: Region[]
      //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     
     // Attempt to find the name listed for this region in the given list of regions
     // (from the whole FSM), assiging the Region object to this._onRegion if found.
-    public bindRegion(regionList : readonly Region[]) : void {
-            
+    public bindRegion(regionList : Region[]) : void {
+        this._regionLs = regionList
         // **** YOUR CODE HERE ****
         // loop over the region list to find the one which matches name for this region
         for (let region of regionList){

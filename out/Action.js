@@ -1,13 +1,14 @@
 import { Err } from "./Err.js";
 import { Check } from "./Check.js";
-const actionTypeStrings = ['set_image', 'clear_image', 'none', 'print', 'print_event', 'select_lineBrush', 'draw_line', 'draw_rect', 'draw_circle', 'erase', 'stopCurrentDrawing', 'select_color', 'draw_free'];
+const actionTypeStrings = ['set_image', 'clear_image', 'none', 'print', 'print_event', 'select_lineBrush', 'draw_line', 'draw_rect', 'draw_circle', 'erase', 'stopCurrentDrawing', 'select_color', 'draw_free', 'move_menu'];
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 export class Action {
     constructor(actType, regionName, param) {
         this._actType = actType;
         this._onRegionName = regionName !== null && regionName !== void 0 ? regionName : "";
         this._param = param !== null && param !== void 0 ? param : "";
-        this._onRegion = undefined; // will be established once we have the whole FSM
+        this._onRegion = undefined;
+        this._regionLs = []; // will be established once we have the whole FSM
     }
     // Construct an Action from an Action_json object.  We type check all the parts here
     // since data coming from json parsing lives in javascript land and may not actually 
@@ -29,11 +30,11 @@ export class Action {
     // Carry out the action represented by this object.  evtType and evtReg describe
     // the event which is causing the action (for use by print_event actions).
     execute(evtType, evtReg, evt) {
-        var _a, _b, _c, _d, _e, _f, _g;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         if (this._actType === 'none')
             return;
-        console.log(evtType);
-        console.log(this._actType);
+        console.log("evtType:", evtType);
+        console.log("actType:", this._actType);
         // **** YOUR CODE HERE ****
         switch (this._actType) {
             case 'set_image':
@@ -84,14 +85,17 @@ export class Action {
                 console.log("action: draw free");
                 (_g = this.onRegion) === null || _g === void 0 ? void 0 : _g.startDraw('free');
                 break;
-            default:
-                throw new Error(`Unknown action type: ${this._actType}`);
+            case 'move_menu':
+                (_h = this.onRegion) === null || _h === void 0 ? void 0 : _h.moveMenu(this._regionLs, this.param);
+            // default:
+            //     throw new Error(`Unknown action type: ${this._actType}`);
         }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Attempt to find the name listed for this region in the given list of regions
     // (from the whole FSM), assiging the Region object to this._onRegion if found.
     bindRegion(regionList) {
+        this._regionLs = regionList;
         // **** YOUR CODE HERE ****
         // loop over the region list to find the one which matches name for this region
         for (let region of regionList) {

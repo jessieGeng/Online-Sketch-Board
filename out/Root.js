@@ -200,7 +200,6 @@ export class Root {
                 evtKind = 'move';
                 break;
             case 'contextmenu':
-                console.log("right click into dispatchToChild");
                 evtKind = 'rightClick';
                 break;
             default:
