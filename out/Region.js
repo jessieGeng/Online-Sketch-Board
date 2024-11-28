@@ -19,6 +19,8 @@ export class Region {
         // record previous cursor location (where the current stroke start)
         this._cursorX = -1;
         this._cursorY = -1;
+        // Add a property for stroke size
+        this.currentStrokeSize = 1; // Default to 1px
         this.currentColor = '#000000'; // Default to black
         this._name = name;
         this._parent = parent;
@@ -109,6 +111,7 @@ export class Region {
         if (ctx) {
             if ((tool === 'erase') || (tool === 'free')) {
                 // if it's erasing, we directly update on buffer canvas, don't remove adjustions
+                ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
                 ctx.drawImage(this._bufferCanvas, 0, 0);
                 // this.drawTools(ctx, evt)
                 this.drawTools(this._bufferContext, evt);
@@ -139,7 +142,7 @@ export class Region {
         console.log("start:", this._cursorX, this._cursorY);
         console.log("end:", evt.offsetX, evt.offsetY);
         ctx.strokeStyle = this.currentColor;
-        ctx.lineWidth = 1;
+        ctx.lineWidth = this.currentStrokeSize;
         switch (this._tool) {
             case "line":
                 ctx.beginPath();
@@ -172,7 +175,7 @@ export class Region {
                 // ctx.fill();
                 // ctx.closePath();
                 ctx.strokeStyle = "white";
-                ctx.lineWidth = 10;
+                // ctx.lineWidth = 10;
                 ctx.beginPath();
                 ctx.moveTo(this._cursorX, this._cursorY);
                 ctx.lineTo(evt.offsetX, evt.offsetY);
@@ -194,29 +197,77 @@ export class Region {
     }
     showColorWheel(evt) {
         console.log("show color wheel");
-        const colorWheel = document.createElement('div');
-        colorWheel.id = 'color-wheel';
-        colorWheel.style.position = 'absolute';
+        const container = document.createElement('div');
+        container.id = 'color-wheel-container';
+        container.style.position = 'absolute';
+        container.style.background = 'black';
+        container.style.border = '1px solid black';
+        container.style.padding = '10px';
+        container.style.borderRadius = '5px';
+        // container.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
         if (evt) {
-            colorWheel.style.left = `${evt.offsetX + 10}px`;
-            colorWheel.style.top = `${evt.offsetY + 10}px`;
+            container.style.left = `${evt.offsetX + 10}px`;
+            container.style.top = `${evt.offsetY + 10}px`;
         }
         else {
-            colorWheel.style.left = `${this.x}px`; // position the color wheel at the right-click location
-            colorWheel.style.top = `${this.y}px`;
+            container.style.left = `${this.x}px`; // Default position
+            container.style.top = `${this.y}px`;
         }
-        // Add color options to the color wheel (simplified version)
+        // color options
         const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+        const colorContainer = document.createElement('div');
+        colorContainer.style.display = 'flex';
+        colorContainer.style.justifyContent = 'space-around';
+        colorContainer.style.marginBottom = '10px';
         colors.forEach(color => {
             const colorBox = document.createElement('div');
             colorBox.style.width = '30px';
             colorBox.style.height = '30px';
             colorBox.style.backgroundColor = color;
-            colorBox.style.margin = '5px';
-            colorBox.addEventListener('click', () => this.setColorForDrawing(color));
-            colorWheel.appendChild(colorBox);
+            colorBox.style.cursor = 'pointer';
+            colorBox.addEventListener('click', () => {
+                this.setColorForDrawing(color);
+                container.remove();
+                document.removeEventListener('click', outsideClickListener);
+            });
+            colorContainer.appendChild(colorBox);
         });
-        document.body.appendChild(colorWheel);
+        container.appendChild(colorContainer);
+        // stroke size slider
+        const sizeLabel = document.createElement('label');
+        sizeLabel.style.color = "white";
+        sizeLabel.textContent = 'Stroke Size: ';
+        sizeLabel.style.display = 'block';
+        sizeLabel.style.marginBottom = '5px';
+        const sizeInput = document.createElement('input');
+        sizeInput.type = 'range';
+        sizeInput.min = '1';
+        sizeInput.max = '20';
+        sizeInput.value = `${this.currentStrokeSize}`;
+        sizeInput.style.width = '100%';
+        sizeInput.addEventListener('input', () => {
+            const size = parseInt(sizeInput.value, 10);
+            this.setStrokeSize(size);
+        });
+        sizeInput.addEventListener('mouseup', () => {
+            container.remove();
+            document.removeEventListener('click', outsideClickListener);
+        });
+        container.appendChild(sizeLabel);
+        container.appendChild(sizeInput);
+        document.body.appendChild(container);
+        const outsideClickListener = (event) => {
+            if (!container.contains(event.target)) {
+                container.remove();
+                document.removeEventListener('click', outsideClickListener); // Cleanup event listener
+            }
+        };
+        document.addEventListener('click', outsideClickListener);
+    }
+    // New method to set stroke size
+    setStrokeSize(size) {
+        this.currentStrokeSize = size;
+        console.log(`Selected stroke size: ${size}`);
     }
     setColorForDrawing(color) {
         this.currentColor = color;
@@ -348,12 +399,12 @@ export class Region {
             ctx.drawImage(this.image, 0, 0, this.w, this.h);
         }
         //draw a frame indicating the (input) bounding box if requested
-        if ((showDebugFrame) && (this.name === "canvas")) {
-            ctx.save();
-            ctx.strokeStyle = 'black';
-            ctx.strokeRect(0, 0, window.innerWidth, window.innerHeight);
-            ctx.restore();
-        }
+        // if ((showDebugFrame) && (this.name === "canvas")) {
+        //     ctx.save();
+        //         ctx.strokeStyle = 'black';
+        //         ctx.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+        //     ctx.restore();
+        // }
     }
     startDraw(type) {
         console.log("start draw");

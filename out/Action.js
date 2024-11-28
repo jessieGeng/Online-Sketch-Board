@@ -78,7 +78,6 @@ export class Action {
                 (_e = this.onRegion) === null || _e === void 0 ? void 0 : _e.removeListeners();
                 break;
             case "select_color":
-                // Trigger the display of the color wheel (you can implement this in the Region class)
                 (_f = this.onRegion) === null || _f === void 0 ? void 0 : _f.showColorWheel(evt);
                 break;
             case 'draw_free':

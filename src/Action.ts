@@ -138,7 +138,6 @@ export class Action {
                 break;
             
             case "select_color":
-                // Trigger the display of the color wheel (you can implement this in the Region class)
                 this.onRegion?.showColorWheel(evt);
                 break;
             
