@@ -124,7 +124,7 @@ export class FSMInteractor {
     // from the controlling FSM, in response to damage declarations from its  "child" 
     // regions, etc.  This method passes the damage notification to its hosting Root
     // object which coordinates eventual redraw by calling this object's draw() method.
-    public damage(canvas?:string) {
+    public damage() {
            
         // **** YOUR CODE HERE ****
         

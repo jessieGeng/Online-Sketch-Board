@@ -145,10 +145,6 @@ export class Region {
     private _onMouseDown(evt: MouseEvent, tool:string) {
         console.log("mouse down:", evt.offsetX, evt.offsetY)      
         this._drawingLine = true;
-        // if(tool === ""){
-        //     return;
-        // }
-       
         this._cursorX = evt.offsetX;
         this._cursorY = evt.offsetY;
 
@@ -192,11 +188,6 @@ export class Region {
         const ctx = this._canvas;
         // Save final stroke to buffer canvas
         this.drawTools(this._bufferContext, evt); 
-        // Clear main canvas
-        // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        // // Redraw buffer onto main canvas 
-        // ctx.drawImage(this._bufferCanvas, 0, 0);
-
     }
 
     private drawTools(ctx:CanvasRenderingContext2D, evt:MouseEvent){
@@ -233,14 +224,7 @@ export class Region {
                 break;
             
             case "erase":
-                // const eraseRadius = 10;
-                // ctx.beginPath();
-                // ctx.arc(evt.offsetX, evt.offsetY, eraseRadius, 0, 2 * Math.PI);
-                // ctx.fillStyle = "white";
-                // ctx.fill();
-                // ctx.closePath();
                 ctx.strokeStyle = "white";
-                // ctx.lineWidth = 10;
                 ctx.beginPath();
                 ctx.moveTo(this._cursorX, this._cursorY);
                 ctx.lineTo(evt.offsetX, evt.offsetY);
@@ -353,22 +337,17 @@ public moveMenu(regionLs: Region[], tool:string) {
     let startY: number = 0;
     let dragging: boolean = false;
     const initialPositions: { region: Region; x: number; y: number }[] = [];
-
     const isInteractiveElement = (target: EventTarget | null): boolean => {
         if (!target || !(target instanceof HTMLElement)) return false;
         return (target.tagName === "INPUT" );
     };
-
     // Mouse down: Start tracking the drag
     const onMouseDown = (evt: MouseEvent) => {
         // Ignore the event if it starts on an interactive element
         if (isInteractiveElement(evt.target)) return;
-        
-
         dragging = true;
         startX = evt.clientX;
         startY = evt.clientY;
-
         // Record the initial positions of all regions
         initialPositions.length = 0;
         for (const region of regionLs) {
@@ -377,18 +356,14 @@ public moveMenu(regionLs: Region[], tool:string) {
             }
             initialPositions.push({ region, x: region._x, y: region._y });
         }
-
         // Prevent text selection or unintended browser behavior
         evt.preventDefault();
     };
-
     // Mouse move: Update the positions of the regions
     const onMouseMove = (evt: MouseEvent) => {
         if (!dragging) return;
-
         const offsetX = evt.clientX - startX;
         const offsetY = evt.clientY - startY;
-
         // Update each region's position relative to the drag offset
         for (const entry of initialPositions) {
             const { region, x, y } = entry;
@@ -397,17 +372,13 @@ public moveMenu(regionLs: Region[], tool:string) {
         }
         this.redrawRegions(regionLs);
     };
-
     // Mouse up: Finalize the drag and stop tracking
     const onMouseUp = () => {
         dragging = false;
-
         // Remove event listeners when dragging is done
-        // document.removeEventListener("mousedown", onMouseMove);
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
     };
-
     // Attach event listeners for drag behavior
     document.addEventListener("mousedown", onMouseDown);
     document.addEventListener("mousemove", onMouseMove);
@@ -417,7 +388,6 @@ public moveMenu(regionLs: Region[], tool:string) {
 private redrawRegions(regionLs: Region[]) {
     const ctx = this._canvas; // The main canvas context
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
     for (const region of regionLs) {
         // Optionally, draw a representation of the region
         // ctx.strokeRect(region._x, region._y, region._w, region._h);

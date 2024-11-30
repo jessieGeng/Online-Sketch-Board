@@ -212,9 +212,7 @@ export class Root {
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-    protected _clickCheck :string = "";
-    public get clickCheck() {return this._clickCheck;}
-    public set clickCheck(v : string) {this._clickCheck = v;}
+
     
     // Dispatch a simplified form of event to one child object.  Simplified events
     // are of three types press, move, and release, where press and release are of the 
