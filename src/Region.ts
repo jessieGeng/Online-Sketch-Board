@@ -263,6 +263,9 @@ export class Region {
     }
 }
 
+// right click menu
+private currentStrokeSize: number = 1; 
+private currentColor: string = '#000000'; 
 
 public showColorWheel(evt: MouseEvent | undefined) {
     console.log("show color wheel");
@@ -282,7 +285,6 @@ public showColorWheel(evt: MouseEvent | undefined) {
         container.style.left = `${this.x}px`; // Default position
         container.style.top = `${this.y}px`;
     }
-
     // color options
     const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
     const colorContainer = document.createElement('div');
@@ -321,7 +323,7 @@ public showColorWheel(evt: MouseEvent | undefined) {
     sizeInput.style.width = '100%';
     sizeInput.addEventListener('input', () => {
         const size = parseInt(sizeInput.value, 10);
-        this.setStrokeSize(size);
+        this.currentStrokeSize = size;
     });
     sizeInput.addEventListener('mouseup', () => {
         container.remove(); 
@@ -342,14 +344,7 @@ public showColorWheel(evt: MouseEvent | undefined) {
     document.addEventListener('click', outsideClickListener);
 }
 
-// New method to set stroke size
-private setStrokeSize(size: number) {
-    this.currentStrokeSize = size;
-    console.log(`Selected stroke size: ${size}`);
-}
 
-private currentStrokeSize: number = 1; 
-private currentColor: string = '#000000'; 
 
 
 
@@ -400,8 +395,6 @@ public moveMenu(regionLs: Region[], tool:string) {
             region._x = x + offsetX;
             region._y = y + offsetY;
         }
-
-        // Optionally, update the rendering to reflect the new positions
         this.redrawRegions(regionLs);
     };
 
@@ -413,7 +406,6 @@ public moveMenu(regionLs: Region[], tool:string) {
         // document.removeEventListener("mousedown", onMouseMove);
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
-        
     };
 
     // Attach event listeners for drag behavior
@@ -421,6 +413,7 @@ public moveMenu(regionLs: Region[], tool:string) {
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
 }
+
 private redrawRegions(regionLs: Region[]) {
     const ctx = this._canvas; // The main canvas context
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -428,6 +421,9 @@ private redrawRegions(regionLs: Region[]) {
     for (const region of regionLs) {
         // Optionally, draw a representation of the region
         // ctx.strokeRect(region._x, region._y, region._w, region._h);
+        if(region.name === "canvas"){
+            continue;
+        }
         if (region._imageLoc) {
             const img = new Image();
             img.src = region._imageLoc;

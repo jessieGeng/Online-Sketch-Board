@@ -140,7 +140,6 @@
                     "target" : "lineBrush",
                     "actions" : [
                         {"act": "print_event", "param": "move: "},
-                        {"act":"stopCurrentDrawing", "region":"canvas"},
                         {"act": "move_menu", "region": "canvas", "param":"line"}]
                 },
                 {

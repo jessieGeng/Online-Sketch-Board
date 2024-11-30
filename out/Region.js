@@ -19,6 +19,7 @@ export class Region {
         // record previous cursor location (where the current stroke start)
         this._cursorX = -1;
         this._cursorY = -1;
+        // right click menu
         this.currentStrokeSize = 1;
         this.currentColor = '#000000';
         this._name = name;
@@ -246,7 +247,7 @@ export class Region {
         sizeInput.style.width = '100%';
         sizeInput.addEventListener('input', () => {
             const size = parseInt(sizeInput.value, 10);
-            this.setStrokeSize(size);
+            this.currentStrokeSize = size;
         });
         sizeInput.addEventListener('mouseup', () => {
             container.remove();
@@ -262,11 +263,6 @@ export class Region {
             }
         };
         document.addEventListener('click', outsideClickListener);
-    }
-    // New method to set stroke size
-    setStrokeSize(size) {
-        this.currentStrokeSize = size;
-        console.log(`Selected stroke size: ${size}`);
     }
     moveMenu(regionLs, tool) {
         let startX = 0;
@@ -309,7 +305,6 @@ export class Region {
                 region._x = x + offsetX;
                 region._y = y + offsetY;
             }
-            // Optionally, update the rendering to reflect the new positions
             this.redrawRegions(regionLs);
         };
         // Mouse up: Finalize the drag and stop tracking
@@ -331,6 +326,9 @@ export class Region {
         for (const region of regionLs) {
             // Optionally, draw a representation of the region
             // ctx.strokeRect(region._x, region._y, region._w, region._h);
+            if (region.name === "canvas") {
+                continue;
+            }
             if (region._imageLoc) {
                 const img = new Image();
                 img.src = region._imageLoc;
