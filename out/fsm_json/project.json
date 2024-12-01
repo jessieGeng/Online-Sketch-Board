@@ -140,6 +140,7 @@
                     "target" : "lineBrush",
                     "actions" : [
                         {"act": "print_event", "param": "move: "},
+                        {"act":"stopCurrentDrawing", "region":"canvas"},
                         {"act": "move_menu", "region": "canvas", "param":"line"}]
                 },
                 {
@@ -333,14 +334,7 @@
                     "target" : "circleBrush",
                     "actions" : [
                         {"act": "print_event", "param": "draw line: "}, 
-                        {"act": "draw_circle", "region": "canvas"}]
-                },
-                {
-                    "onEvent" : {"evtType" : "press", "region" : "canvas"},
-                    "target" : "circleBrush",
-                    "actions" : [
-                        {"act": "print_event", "param": "draw line: "}, 
-                        {"act": "draw_rect", "region": "canvas", "param":"circle"}
+                        {"act": "draw_circle", "region": "canvas", "param":"circle"}
                     ]
                 },
                 {

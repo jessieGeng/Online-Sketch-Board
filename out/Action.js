@@ -8,7 +8,8 @@ export class Action {
         this._onRegionName = regionName !== null && regionName !== void 0 ? regionName : "";
         this._param = param !== null && param !== void 0 ? param : "";
         this._onRegion = undefined;
-        this._regionLs = []; // will be established once we have the whole FSM
+        // list of all regions, will be established once we have the whole FSM
+        this._regionLs = [];
     }
     // Construct an Action from an Action_json object.  We type check all the parts here
     // since data coming from json parsing lives in javascript land and may not actually 
@@ -59,14 +60,17 @@ export class Action {
                 console.log("Current event: ", this._param, evtType, evtReg === null || evtReg === void 0 ? void 0 : evtReg.debugString());
                 break;
             case 'draw_line':
+                //  draw a straight line
                 console.log("action: draw_line");
                 (_a = this.onRegion) === null || _a === void 0 ? void 0 : _a.startDraw('line');
                 break;
             case 'draw_rect':
+                // draw a rectangle
                 console.log("action: draw_rect");
                 (_b = this.onRegion) === null || _b === void 0 ? void 0 : _b.startDraw('rect');
                 break;
             case 'draw_circle':
+                // draw a circle
                 console.log("action: draw_circle");
                 (_c = this.onRegion) === null || _c === void 0 ? void 0 : _c.startDraw('circle');
                 break;
@@ -75,20 +79,23 @@ export class Action {
                 (_d = this.onRegion) === null || _d === void 0 ? void 0 : _d.startDraw('erase');
                 break;
             case 'stopCurrentDrawing':
+                // stop drawing by remove all listeners
                 console.log("stopCurrentDrawing");
                 (_e = this.onRegion) === null || _e === void 0 ? void 0 : _e.removeListeners();
                 break;
             case "select_color":
+                // show color selection and stroke size
                 (_f = this.onRegion) === null || _f === void 0 ? void 0 : _f.showColorWheel(evt);
                 break;
             case 'draw_free':
+                // draw freely
                 console.log("action: draw free");
                 (_g = this.onRegion) === null || _g === void 0 ? void 0 : _g.startDraw('free');
                 break;
             case 'move_menu':
-                (_h = this.onRegion) === null || _h === void 0 ? void 0 : _h.moveMenu(this._regionLs, this.param);
-            // default:
-            //     throw new Error(`Unknown action type: ${this._actType}`);
+                // move menu bar around with cursor
+                (_h = this.onRegion) === null || _h === void 0 ? void 0 : _h.moveMenu(this._regionLs);
+                break;
         }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

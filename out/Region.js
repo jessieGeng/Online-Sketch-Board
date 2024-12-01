@@ -19,18 +19,22 @@ export class Region {
         // record previous cursor location (where the current stroke start)
         this._cursorX = -1;
         this._cursorY = -1;
-        // right click menu
+        // right click menu, initialize with default
         this.currentStrokeSize = 1;
         this.currentColor = '#000000';
         this._name = name;
         this._parent = parent;
         this._imageLoc = imageLoc;
         this._canvas = canvas;
+        // check if the listeners are setted for drawing
         this._setted = false;
+        // to recognize what tool we are using right now
         this._tool = "";
+        // reserved space for listener (in order to refer when remove)
         this._onMouseDownBound = (evt) => null;
         this._onMouseMoveBound = (evt) => null;
         this._onMouseUpBound = (evt) => null;
+        // initialize buffer canvas
         this._bufferCanvas = document.createElement("canvas");
         this._bufferCanvas.width = canvas.canvas.width;
         this._bufferCanvas.height = canvas.canvas.height;
@@ -63,87 +67,88 @@ export class Region {
         const imageLoc = Check.stringVal((_e = reg.imageLoc) !== null && _e !== void 0 ? _e : "", "Region.fromJson{imageLoc:}");
         return new Region(name, imageLoc, x, y, w, h, canvas, parent);
     }
+    // set up listeners and initialize when select a new brush
     _setupCanvasEventHandlers(tool) {
         this.setted = true;
+        // set the tool value to current tool
         this._tool = tool;
         // Bind the methods so we can add and remove the exact same references
         this._onMouseDownBound = (evt) => this._onMouseDown(evt, tool);
         this._onMouseMoveBound = (evt) => this._onMouseMove(evt, tool);
         this._onMouseUpBound = (evt) => this._onMouseUp(evt);
-        // Start drawing line on mousedown
+        // Set up listener
         this.canvas.canvas.addEventListener("mousedown", this._onMouseDownBound);
         this.canvas.canvas.addEventListener("mousemove", this._onMouseMoveBound);
         this.canvas.canvas.addEventListener("mouseup", this._onMouseUpBound);
     }
+    // remove the current listeners
     removeListeners() {
         // Ensure listeners are removed using the bound references
-        console.log("removing listeners");
         this.canvas.canvas.removeEventListener("mousedown", this._onMouseDownBound);
         this.canvas.canvas.removeEventListener("mousemove", this._onMouseMoveBound);
         this.canvas.canvas.removeEventListener("mouseup", this._onMouseUpBound);
+        // set back to default (no brushes status)
         this._tool = "";
         this._drawingLine = false;
         this.setted = false;
+        // make cursor X, Y negative to indicate there's no current stroke
         this._cursorX = -1;
         this._cursorY = -1;
     }
     _onMouseDown(evt, tool) {
-        console.log("mouse down:", evt.offsetX, evt.offsetY);
+        console.log("mouse down:", tool, evt.offsetX, evt.offsetY);
+        // indicate we are currently drawing a line
         this._drawingLine = true;
-        // if(tool === ""){
-        //     return;
-        // }
+        // set the start point of current stroke
         this._cursorX = evt.offsetX;
         this._cursorY = evt.offsetY;
     }
     _onMouseMove(evt, tool) {
         console.log("mouse move:", evt.offsetX, evt.offsetY);
-        // sometimes the mouse down is not detected. We need to update when it sense the first move
+        // sometimes the mouse down is not detected for the first press on canvas right after select brush, 
+        // as it is  used to indicate drawing start and set the listeners. 
+        // If so, we need to update when it sense the first move
         if (this._cursorX === -1) {
             this._cursorX = evt.offsetX;
             this._cursorY = evt.offsetY;
             this._drawingLine = true;
         }
+        // if we are not drawing (no pressed, simply moving on canvas)
         if (!this._drawingLine || this._tool === "") {
             return;
         }
+        // set ctx to the root canvas
         const ctx = this.canvas;
         if (ctx) {
+            // Clear the canvas on every move to update the current stroke
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            // redraw previous drawings from buffer
+            ctx.drawImage(this._bufferCanvas, 0, 0);
             if ((tool === 'erase') || (tool === 'free')) {
-                // if it's erasing, we directly update on buffer canvas, don't remove adjustions
-                ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-                ctx.drawImage(this._bufferCanvas, 0, 0);
-                // this.drawTools(ctx, evt)
+                // if it's erasing/free drawing, we directly update on buffer canvas, don't remove adjustions
                 this.drawTools(this._bufferContext, evt);
             }
             else {
-                // Clear the canvas on every move to redraw the current shape
-                ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-                // draw the stored strokes from buffer
-                ctx.drawImage(this._bufferCanvas, 0, 0);
-                // do the current stroke
+                // do the current stroke on ctx
                 this.drawTools(ctx, evt);
             }
         }
     }
     _onMouseUp(evt) {
         console.log("mouse up:", evt.offsetX, evt.offsetY);
+        // indicate finished a stroke
         this._drawingLine = false;
-        const ctx = this._canvas;
         // Save final stroke to buffer canvas
         this.drawTools(this._bufferContext, evt);
-        // Clear main canvas
-        // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        // // Redraw buffer onto main canvas 
-        // ctx.drawImage(this._bufferCanvas, 0, 0);
     }
+    // handle the drawing according to current tool
     drawTools(ctx, evt) {
-        console.log("draw tool:", this._tool);
-        console.log("start:", this._cursorX, this._cursorY);
-        console.log("end:", evt.offsetX, evt.offsetY);
+        // set color and stroke size
         ctx.strokeStyle = this.currentColor;
         ctx.lineWidth = this.currentStrokeSize;
+        // switch according to current brush
         switch (this._tool) {
+            // draw straight line
             case "line":
                 ctx.beginPath();
                 ctx.moveTo(this._cursorX, this._cursorY);
@@ -152,11 +157,13 @@ export class Region {
                 ctx.closePath();
                 break;
             case "rect":
+                // draw rectangle, size according to mouse move
                 const width = evt.offsetX - this._cursorX;
                 const height = evt.offsetY - this._cursorY;
                 ctx.strokeRect(this._cursorX, this._cursorY, width, height);
                 break;
             case "circle":
+                // draw ellipse
                 ctx.beginPath();
                 let w = evt.offsetX - this._cursorX;
                 let h = evt.offsetY - this._cursorY;
@@ -168,14 +175,8 @@ export class Region {
                 ctx.stroke();
                 break;
             case "erase":
-                // const eraseRadius = 10;
-                // ctx.beginPath();
-                // ctx.arc(evt.offsetX, evt.offsetY, eraseRadius, 0, 2 * Math.PI);
-                // ctx.fillStyle = "white";
-                // ctx.fill();
-                // ctx.closePath();
+                // erase, enabled by white paint
                 ctx.strokeStyle = "white";
-                // ctx.lineWidth = 10;
                 ctx.beginPath();
                 ctx.moveTo(this._cursorX, this._cursorY);
                 ctx.lineTo(evt.offsetX, evt.offsetY);
@@ -185,6 +186,7 @@ export class Region {
                 this._cursorY = evt.offsetY;
                 break;
             case "free":
+                // free drawing, continuously updating start point as moving
                 ctx.beginPath();
                 ctx.moveTo(this._cursorX, this._cursorY);
                 ctx.lineTo(evt.offsetX, evt.offsetY);
@@ -195,16 +197,18 @@ export class Region {
                 break;
         }
     }
+    // show color wheel and stroke size adjustion menu
     showColorWheel(evt) {
-        console.log("show color wheel");
+        //  using HTMLelement div block for UI
+        // big container for color wheel and stroke slider
         const container = document.createElement('div');
         container.id = 'color-wheel-container';
         container.style.position = 'absolute';
-        container.style.background = 'black';
+        container.style.background = 'grey';
         container.style.border = '1px solid black';
         container.style.padding = '10px';
         container.style.borderRadius = '5px';
-        // container.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+        // show the UI next to the current cursor location
         if (evt) {
             container.style.left = `${evt.offsetX + 10}px`;
             container.style.top = `${evt.offsetY + 10}px`;
@@ -214,61 +218,83 @@ export class Region {
             container.style.top = `${this.y}px`;
         }
         // color options
-        const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+        const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#000000'];
+        // container for color options
         const colorContainer = document.createElement('div');
         colorContainer.style.display = 'flex';
         colorContainer.style.justifyContent = 'space-around';
         colorContainer.style.marginBottom = '10px';
+        // for each color, create a div box for it
         colors.forEach(color => {
             const colorBox = document.createElement('div');
             colorBox.style.width = '30px';
             colorBox.style.height = '30px';
             colorBox.style.backgroundColor = color;
+            // make the cursor point to it to inicate selectable
             colorBox.style.cursor = 'pointer';
+            // disappear after click (select this color) or click outside (cancel)
             colorBox.addEventListener('click', () => {
                 this.currentColor = color;
                 container.remove();
                 document.removeEventListener('click', outsideClickListener);
             });
+            // put the box into color container
             colorContainer.appendChild(colorBox);
         });
+        // attach color wheel UI to the big menu
         container.appendChild(colorContainer);
         // stroke size slider
+        // write a label to tell user what this is
         const sizeLabel = document.createElement('label');
         sizeLabel.style.color = "white";
         sizeLabel.textContent = 'Stroke Size: ';
         sizeLabel.style.display = 'block';
         sizeLabel.style.marginBottom = '5px';
+        // create UI for the input slider
         const sizeInput = document.createElement('input');
         sizeInput.type = 'range';
         sizeInput.min = '1';
         sizeInput.max = '20';
+        // indicate where we are currently (the current stroke size)
         sizeInput.value = `${this.currentStrokeSize}`;
         sizeInput.style.width = '100%';
+        // listen to what value the user select and set the stroke
         sizeInput.addEventListener('input', () => {
             const size = parseInt(sizeInput.value, 10);
             this.currentStrokeSize = size;
         });
+        // if mouseup (finish moving slide, selected a size), remove the UI
         sizeInput.addEventListener('mouseup', () => {
             container.remove();
             document.removeEventListener('click', outsideClickListener);
         });
+        // put these elements into the big menu UI
         container.appendChild(sizeLabel);
         container.appendChild(sizeInput);
         document.body.appendChild(container);
+        // the function to check if there is a click outside the UI
+        // if happen, remove the UI
         const outsideClickListener = (event) => {
+            // if click on the selectable targets, discard
             if (!container.contains(event.target)) {
                 container.remove();
-                document.removeEventListener('click', outsideClickListener); // Cleanup event listener
+                // Cleanup event listener
+                document.removeEventListener('click', outsideClickListener);
             }
         };
+        // add listener to the canvas
         document.addEventListener('click', outsideClickListener);
     }
-    moveMenu(regionLs, tool) {
+    // when press on moving icon, we can move the menu
+    moveMenu(regionLs) {
+        // store the start place of movement
         let startX = 0;
         let startY = 0;
+        // indicate if we are dragging the menu
         let dragging = false;
+        // store the initial positions of regions
         const initialPositions = [];
+        // if the target we are dragging is an interactive element, then we are not moving the menu
         const isInteractiveElement = (target) => {
             if (!target || !(target instanceof HTMLElement))
                 return false;
@@ -280,23 +306,27 @@ export class Region {
             if (isInteractiveElement(evt.target))
                 return;
             dragging = true;
+            // record the start place
             startX = evt.clientX;
             startY = evt.clientY;
             // Record the initial positions of all regions
             initialPositions.length = 0;
             for (const region of regionLs) {
+                // we don't modify canvas' position, just regions in menu bar
                 if (region.name === "canvas") {
                     continue;
                 }
+                // for each region, record its initial x and y
                 initialPositions.push({ region, x: region._x, y: region._y });
             }
-            // Prevent text selection or unintended browser behavior
+            // Prevent unintended browser behavior
             evt.preventDefault();
         };
         // Mouse move: Update the positions of the regions
         const onMouseMove = (evt) => {
             if (!dragging)
                 return;
+            // calculate the offset in position
             const offsetX = evt.clientX - startX;
             const offsetY = evt.clientY - startY;
             // Update each region's position relative to the drag offset
@@ -305,13 +335,14 @@ export class Region {
                 region._x = x + offsetX;
                 region._y = y + offsetY;
             }
+            // redraw the regions
             this.redrawRegions(regionLs);
         };
         // Mouse up: Finalize the drag and stop tracking
         const onMouseUp = () => {
             dragging = false;
             // Remove event listeners when dragging is done
-            // document.removeEventListener("mousedown", onMouseMove);
+            document.removeEventListener("mousedown", onMouseDown);
             document.removeEventListener("mousemove", onMouseMove);
             document.removeEventListener("mouseup", onMouseUp);
         };
@@ -321,14 +352,15 @@ export class Region {
         document.addEventListener("mouseup", onMouseUp);
     }
     redrawRegions(regionLs) {
-        const ctx = this._canvas; // The main canvas context
+        const ctx = this._canvas;
+        // clear the main canvas context
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         for (const region of regionLs) {
-            // Optionally, draw a representation of the region
-            // ctx.strokeRect(region._x, region._y, region._w, region._h);
+            // we don't modify canvas' position, just regions in menu bar
             if (region.name === "canvas") {
                 continue;
             }
+            // draw the region
             if (region._imageLoc) {
                 const img = new Image();
                 img.src = region._imageLoc;

@@ -39,7 +39,8 @@ export class Action {
         this._onRegionName = regionName ?? "";
         this._param = param ?? "";
         this._onRegion = undefined;
-        this._regionLs = [];  // will be established once we have the whole FSM
+        // list of all regions, will be established once we have the whole FSM
+        this._regionLs = [];  
     }
 
     // Construct an Action from an Action_json object.  We type check all the parts here
@@ -114,16 +115,19 @@ export class Action {
                 break;
             
             case 'draw_line':
+                //  draw a straight line
                 console.log("action: draw_line");
                 this.onRegion?.startDraw('line');
                 break;
             
             case 'draw_rect':
+                // draw a rectangle
                 console.log("action: draw_rect");
                 this.onRegion?.startDraw('rect');
                 break;
             
             case 'draw_circle':
+                // draw a circle
                 console.log("action: draw_circle");
                 this.onRegion?.startDraw('circle');
                 break;
@@ -134,24 +138,27 @@ export class Action {
                 break;
 
             case 'stopCurrentDrawing':
+                // stop drawing by remove all listeners
                 console.log("stopCurrentDrawing")
                 this.onRegion?.removeListeners()
                 break;
             
             case "select_color":
+                // show color selection and stroke size
                 this.onRegion?.showColorWheel(evt);
                 break;
             
             case 'draw_free':
+                // draw freely
                 console.log("action: draw free");
                 this.onRegion?.startDraw('free');
                 break;
 
             case 'move_menu':
-                this.onRegion?.moveMenu(this._regionLs, this.param)
+                // move menu bar around with cursor
+                this.onRegion?.moveMenu(this._regionLs)
+                break;
     
-            // default:
-            //     throw new Error(`Unknown action type: ${this._actType}`);
         }
        
     }
@@ -171,14 +178,12 @@ export class Action {
                 return;
             }
         }
-        
         // ok to have no matching region for some actions
         if (this.actType === 'none' || this.actType === 'print' || 
                                        this.actType === 'print_event') {
             this._onRegion = undefined;
             return;
         }
-        
         Err.emit(`Region '${this._onRegionName}' in action does not match any region.`);
     }
    

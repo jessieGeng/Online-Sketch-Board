@@ -155,6 +155,7 @@ export class Root {
         this.owningCanvas.onmousedown = (evt : MouseEvent ) => {this._handleCanvasEvent(evt);}
         this.owningCanvas.onmousemove = (evt : MouseEvent ) => {this._handleCanvasEvent(evt);}
         this.owningCanvas.onmouseup =   (evt : MouseEvent ) => {this._handleCanvasEvent(evt);}
+        // add listener to right click
         this.owningCanvas.addEventListener("contextmenu", (evt: MouseEvent) => {
             console.log("Right-click detected!");
             evt.preventDefault(); // Prevent the default context menu from appearing
